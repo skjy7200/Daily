@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "이상해씨",
+    "types": ["풀", "독"],
+    "image": "https://play.pokemonshowdown.com/sprites/gen5/bulbasaur.png",
+    "moves": []
+  },
+  {
+    "id": 4,
+    "name": "파이리",
+    "types": ["불꽃"],
+    "image": "https://play.pokemonshowdown.com/sprites/gen5/charmander.png",
+    "moves": []
+  },
+  {
+    "id": 7,
+    "name": "꼬부기",
+    "types": ["물"],
+    "image": "https://play.pokemonshowdown.com/sprites/gen5/squirtle.png",
+    "moves": []
+  }
+]
