@@ -6,43 +6,78 @@ const GYM_LEADERS = [
   "웅", "이슬", "마티스", "민화", "독수", "초련", "강연", "비주기"
 ];
 
+const GYM_LEADER_TEAMS = {
+  "웅": [74, 111, 95], // 꼬마돌, 뿔카노, 롱스톤
+  "이슬": [54, 120, 121], // 고라파덕, 별가사리, 아쿠스타
+  "마티스": [100, 25, 26], // 찌리리공, 피카츄, 라이츄
+  "민화": [114, 71, 45], // 덩쿠리, 우츠보트, 라플레시아
+  "독수": [109, 89, 110], // 또가스, 질뻐기, 또도가스
+  "초련": [64, 122, 65], // 윤겔라, 마임맨, 후딘
+  "강연": [78, 126, 59], // 날쌩마, 마그마, 윈디
+  "비주기": [31, 34, 112] // 니드퀸, 니드킹, 코뿌리
+};
+
+/**
+ * [DevMode] 가상 날짜를 반환합니다.
+ * localStorage의 'debug_day_offset' 값을 읽어 현재 시간에 더합니다.
+ */
+const getVirtualDate = () => {
+  const now = new Date();
+  const offsetDays = parseInt(localStorage.getItem('debug_day_offset') || '0', 10);
+  if (offsetDays > 0) {
+    now.setDate(now.getDate() + offsetDays);
+  }
+  return now;
+};
+
 /**
  * 오늘의 챌린지를 생성합니다.
- * 현재는 제한된 pokemonData.json을 사용합니다.
- * 정식 버전에서는 151마리의 포켓몬 중에서 선택해야 합니다.
- * @returns {{leader: string, pokemon: Array}} 오늘의 챌린지 상세 정보.
+ * KST 날짜를 기반으로 시드를 생성하여 모든 유저에게 동일한 결과를 제공합니다.
+ * @returns {{leader: string, leaderPokemon: Array, rentalPokemon: Array}} 오늘의 챌린지 상세 정보.
  */
 export const generateDailyChallenge = () => {
-  // 개발자 테스트를 위해, 날짜 기반 시드 대신 랜덤 시드를 사용합니다.
-  // 이렇게 하면 새로고침할 때마다 관장과 포켓몬이 변경됩니다.
-  const seed = Date.now() + Math.random();
+  const now = getVirtualDate(); // Use Virtual Date
+  const offset = now.getTimezoneOffset() * 60 * 1000;
+  const kstOffset = 9 * 60 * 60 * 1000;
+  const nowKST = new Date(now.getTime() + offset + kstOffset);
+  
+  // YYYYMMDD 형식의 숫자를 시드로 사용
+  const seed = nowKST.getFullYear() * 10000 + (nowKST.getMonth() + 1) * 100 + nowKST.getDate();
 
-  // 간단한 의사 난수 생성기
-  const pseudoRandom = (s) => {
-    let x = Math.sin(s) * 10000;
-    return x - Math.floor(x);
+  // Mulberry32 알고리즘: 더 고품질의 난수 생성기
+  const mulberry32 = (a) => {
+    return () => {
+      let t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
   };
 
+  // 시드 기반 난수 생성기 초기화
+  const random = mulberry32(seed);
+
   // 체육관 관장 선택
-  const leaderIndex = Math.floor(pseudoRandom(seed) * GYM_LEADERS.length);
+  const leaderIndex = Math.floor(random() * GYM_LEADERS.length);
   const leader = GYM_LEADERS[leaderIndex];
 
-  // 관장을 위한 3마리의 고유 포켓몬 선택
-  const selectedPokemon = [];
-  const availablePokemon = [...pokemonData]; // 원본 배열 수정을 피하기 위해 복사본 사용
+  // 관장 전용 포켓몬 가져오기
+  const leaderPokemonIds = GYM_LEADER_TEAMS[leader];
+  const leaderPokemon = pokemonData.filter(p => leaderPokemonIds.includes(p.id))
+    .sort((a, b) => leaderPokemonIds.indexOf(a.id) - leaderPokemonIds.indexOf(b.id));
+
+  // 유저 렌탈 포켓몬을 위해 관장 포켓몬을 제외한 풀 생성
+  const rentalPool = pokemonData.filter(p => !leaderPokemonIds.includes(p.id));
   
-  for (let i = 0; i < 3; i++) {
-    if (availablePokemon.length === 0) {
-      // 사용 가능한 고유 포켓몬이 부족할 경우 대비 (예: 제한된 데이터로 테스트 시)
-      selectedPokemon.push(pokemonData[Math.floor(pseudoRandom(seed + i) * pokemonData.length)]);
-      continue;
-    }
-    const pokemonIndex = Math.floor(pseudoRandom(seed + i + 1) * availablePokemon.length);
-    selectedPokemon.push(availablePokemon[pokemonIndex]);
-    availablePokemon.splice(pokemonIndex, 1); // 고유성을 보장하기 위해 제거
+  // 유저를 위한 6마리 렌탈 포켓몬 선택
+  const rentalPokemon = [];
+  for (let i = 0; i < 6; i++) {
+    const index = Math.floor(random() * rentalPool.length);
+    rentalPokemon.push(rentalPool[index]);
+    rentalPool.splice(index, 1);
   }
 
-  return { leader, pokemon: selectedPokemon };
+  return { leader, leaderPokemon, rentalPokemon };
 };
 
 /**
@@ -50,7 +85,7 @@ export const generateDailyChallenge = () => {
  * @returns {{hours: number, minutes: number, seconds: number}} 남은 시간.
  */
 export const getCountdownToMidnightKST = () => {
-  const now = new Date();
+  const now = getVirtualDate(); // Use Virtual Date
   
   // 현재 시간을 KST로 변환
   const offset = now.getTimezoneOffset() * 60 * 1000; // 로컬 시간대의 오프셋(밀리초)

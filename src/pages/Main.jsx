@@ -1,5 +1,6 @@
 // src/pages/Main.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { generateDailyChallenge, getCountdownToMidnightKST } from '../utils/challengeUtils';
 import '../App.css'; 
 
@@ -24,6 +25,7 @@ const typeColors = {
 };
 
 function Main() {
+  const navigate = useNavigate();
   const [dailyChallenge, setDailyChallenge] = useState(null);
   const [countdown, setCountdown] = useState(getCountdownToMidnightKST());
 
@@ -49,7 +51,7 @@ function Main() {
     return <div className="main-container">오늘의 챌린지를 불러오는 중...</div>;
   }
 
-  const { leader, pokemon } = dailyChallenge;
+  const { leader, leaderPokemon } = dailyChallenge;
 
   return (
     <div className="main-container">
@@ -63,7 +65,7 @@ function Main() {
       <div className="gym-leader-section">
         <h2>오늘의 관장: {leader}</h2>
         <div className="leader-pokemon-list">
-          {pokemon.map((p, index) => (
+          {leaderPokemon.map((p, index) => (
             <div key={index} className="pokemon-card">
               <img src={p.image} alt={p.name} className="pokemon-image" />
               <h3>{p.name}</h3>
@@ -83,7 +85,12 @@ function Main() {
         </div>
       </div>
 
-      <button className="challenge-button">도전하기!</button>
+      <button 
+        className="challenge-button" 
+        onClick={() => navigate('/select')}
+      >
+        도전하기!
+      </button>
     </div>
   );
 }

@@ -1,10 +1,21 @@
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import Main from './pages/Main';
+import TeamSelection from './pages/TeamSelection';
+import Battle from './pages/Battle';
+import Result from './pages/Result';
+import DevTools from './components/DevTools';
 
 function App() {
   return (
     <div className="App">
-      <Main />
+      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route path="/select" element={<TeamSelection />} />
+        <Route path="/battle" element={<Battle />} />
+        <Route path="/result" element={<Result />} />
+      </Routes>
+      {import.meta.env.DEV && <DevTools />}
     </div>
   );
 }
