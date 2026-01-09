@@ -21,8 +21,33 @@ function Battle() {
   const myPokemon = battleTeam[myCurrentIdx];
   const oppPokemon = battleOpponent[oppCurrentIdx];
 
+  // 타입별 색상 정의
+  const typeColors = {
+    "normal": "#A8A77A", "fire": "#EE8130", "water": "#6390F0", "electric": "#F7D02C",
+    "grass": "#7AC74C", "ice": "#96D9D6", "fighting": "#C22E28", "poison": "#A33EA1",
+    "ground": "#E2BF65", "flying": "#A98FF3", "psychic": "#F95587", "bug": "#A6B91A",
+    "rock": "#B6A136", "ghost": "#735797", "dragon": "#6F35FC", "steel": "#B7B7CE", "fairy": "#D685AD"
+  };
+
+  // HP 퍼센트에 따른 색상 반환
+  const getHpColor = (current, max) => {
+    const ratio = current / max;
+    if (ratio > 0.5) return '#4cc42a'; // 초록
+    if (ratio > 0.2) return '#f1c40f'; // 노랑
+    return '#e74c3c'; // 빨강
+  };
+
   const addLog = (msg) => {
     setLogs(prev => [msg, ...prev].slice(0, 5));
+  };
+
+  // 로그 내용에 따른 클래스 부여
+  const getLogClass = (log) => {
+    if (log.includes('효과가 굉장했다')) return 'log-super-effective';
+    if (log.includes('효과가 별로')) return 'log-not-effective';
+    if (log.includes('쓰러졌다')) return 'log-faint';
+    if (log.includes('의 ')) return 'log-move-use'; // 기술 사용 로그
+    return '';
   };
 
   const calculateDamage = (attacker, defender, move) => {
@@ -112,7 +137,13 @@ function Battle() {
           <div className="status-bar">
             <span className="name">{oppPokemon.name}</span>
             <div className="hp-container">
-              <div className="hp-bar" style={{ width: `${(oppPokemon.currentHp / oppPokemon.maxHp) * 100}%` }}></div>
+              <div 
+                className="hp-bar" 
+                style={{ 
+                  width: `${(oppPokemon.currentHp / oppPokemon.maxHp) * 100}%`,
+                  backgroundColor: getHpColor(oppPokemon.currentHp, oppPokemon.maxHp)
+                }}
+              ></div>
             </div>
             <span className="hp-text">{oppPokemon.currentHp} / {oppPokemon.maxHp}</span>
           </div>
@@ -123,7 +154,13 @@ function Battle() {
           <div className="status-bar">
             <span className="name">{myPokemon.name}</span>
             <div className="hp-container">
-              <div className="hp-bar" style={{ width: `${(myPokemon.currentHp / myPokemon.maxHp) * 100}%` }}></div>
+              <div 
+                className="hp-bar" 
+                style={{ 
+                  width: `${(myPokemon.currentHp / myPokemon.maxHp) * 100}%`,
+                  backgroundColor: getHpColor(myPokemon.currentHp, myPokemon.maxHp)
+                }}
+              ></div>
             </div>
             <span className="hp-text">{myPokemon.currentHp} / {myPokemon.maxHp}</span>
           </div>
@@ -132,12 +169,23 @@ function Battle() {
       <div className="battle-ui">
         <div className="move-list">
           {myPokemon.moves.map((move) => (
-            <button key={move.name} className="move-button" onClick={() => handleMoveSelection(move)} disabled={isProcessing}>
-              {move.nameKo}<span className="move-type">{move.type}</span>
+            <button 
+              key={move.name} 
+              className="move-button" 
+              onClick={() => handleMoveSelection(move)} 
+              disabled={isProcessing}
+              style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
+            >
+              {move.nameKo}
+              <span className="move-type" style={{ color: typeColors[move.type] }}>{move.type}</span>
             </button>
           ))}
         </div>
-        <div className="battle-log">{logs.map((log, i) => <p key={i}>{log}</p>)}</div>
+        <div className="battle-log">
+          {logs.map((log, i) => (
+            <p key={i} className={getLogClass(log)}>{log}</p>
+          ))}
+        </div>
       </div>
     </div>
   );

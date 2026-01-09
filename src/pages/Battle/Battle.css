@@ -124,6 +124,53 @@
   overflow-y: auto;
 }
 
+.battle-log p {
+  margin: 0 0 8px 0;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+  transition: all 0.3s;
+}
+
+/* 강조 로그: 효과가 굉장했다! (노란색 + 확대) */
+.log-super-effective {
+  color: #f1c40f;
+  font-weight: bold;
+  font-size: 1rem !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  animation: log-pop 0.3s ease-out;
+}
+
+/* 강조 로그: 효과가 별로... (회색) */
+.log-not-effective {
+  color: #95a5a6;
+  font-size: 0.8rem !important;
+}
+
+/* 강조 로그: 쓰러졌다! (빨간색 + 흔들림) */
+.log-faint {
+  color: #e74c3c;
+  font-weight: bold;
+  animation: log-shake 0.5s infinite;
+}
+
+/* 기술 사용 로그: 강조 */
+.log-move-use {
+  color: #3498db;
+  font-style: italic;
+}
+
+@keyframes log-pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes log-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
 /* Animations */
 @keyframes attack-player { 0% { transform: translate(0, 0); } 50% { transform: translate(50px, -50px); } 100% { transform: translate(0, 0); } }
 @keyframes attack-opponent { 0% { transform: translate(0, 0); } 50% { transform: translate(-50px, 50px); } 100% { transform: translate(0, 0); } }
