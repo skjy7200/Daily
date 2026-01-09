@@ -1,0 +1,136 @@
+.battle-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+}
+
+.battle-field {
+  flex: 1;
+  background-image: url('../../assets/images/battle-bg.png');
+  background-size: 100% 90%; 
+  background-position: center top 10px;
+  background-repeat: no-repeat;
+  position: relative;
+  border: 6px solid #3b3b3b;
+  border-radius: 4px;
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+
+.pokemon-area.opponent {
+  position: absolute;
+  top: 15%;
+  right: 15%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.pokemon-area.player {
+  position: absolute;
+  bottom: 25%;
+  left: 15%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+}
+
+.pokemon-sprite {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+}
+
+.status-bar {
+  background: #f8f8f8;
+  padding: 8px 15px;
+  border: 3px solid #3b3b3b;
+  width: 200px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+  margin-bottom: 5px;
+}
+
+.status-bar .name {
+  font-family: 'DNFBitBitv2', sans-serif;
+  font-weight: bold;
+  font-size: 0.9rem;
+  display: block;
+}
+
+.hp-container {
+  height: 10px;
+  background: #444;
+  border: 2px solid #3b3b3b;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.hp-bar {
+  height: 100%;
+  background: #4cc42a;
+  transition: width 0.5s ease;
+}
+
+.hp-text {
+  font-family: monospace;
+  font-size: 0.7rem;
+  text-align: right;
+  display: block;
+}
+
+.battle-ui {
+  height: 180px;
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+  background: #f8f8f8;
+  border: 4px solid #3b3b3b;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.move-list {
+  flex: 1.2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.move-button {
+  padding: 10px;
+  font-family: 'DNFBitBitv2', sans-serif;
+  font-size: 0.9rem;
+  border: 3px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.battle-log {
+  flex: 1;
+  background: #fff;
+  padding: 10px;
+  border-left: 4px solid #3b3b3b;
+  font-size: 0.85rem;
+  overflow-y: auto;
+}
+
+/* Animations */
+@keyframes attack-player { 0% { transform: translate(0, 0); } 50% { transform: translate(50px, -50px); } 100% { transform: translate(0, 0); } }
+@keyframes attack-opponent { 0% { transform: translate(0, 0); } 50% { transform: translate(-50px, 50px); } 100% { transform: translate(0, 0); } }
+@keyframes damage-shake { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(-10px, 0); filter: brightness(2); } 50% { transform: translate(10px, 0); } }
+@keyframes faint-anim { 100% { transform: translateY(150px); opacity: 0; } }
+
+.anim-attack-player { animation: attack-player 0.4s ease-out; }
+.anim-attack-opponent { animation: attack-opponent 0.4s ease-out; }
+.anim-damage { animation: damage-shake 0.4s ease-in-out; }
+.anim-faint { animation: faint-anim 0.8s forwards; }

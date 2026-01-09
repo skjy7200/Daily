@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import '../App.css';
+import './Result.css';
 
 function Result() {
   const location = useLocation();

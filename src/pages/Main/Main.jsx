@@ -1,8 +1,8 @@
 // src/pages/Main.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { generateDailyChallenge, getCountdownToMidnightKST } from '../utils/challengeUtils';
-import '../App.css'; 
+import { generateDailyChallenge, getCountdownToMidnightKST } from '../../utils/challengeUtils';
+import './Main.css';
 
 const typeColors = {
   "노말": "#A8A77A",
