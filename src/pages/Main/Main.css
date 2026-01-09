@@ -1,0 +1,100 @@
+.main-container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  width: 90%;
+  margin: 20px auto;
+}
+
+h1 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 2.5em;
+}
+
+.countdown {
+  font-size: 1.5em;
+  color: #e74c3c;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+.gym-leader-section {
+  margin-bottom: 40px;
+}
+
+.gym-leader-section h2 {
+  color: #34495e;
+  margin-bottom: 25px;
+  font-size: 2em;
+}
+
+.leader-pokemon-list {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.pokemon-card {
+  background-color: #ecf0f1;
+  border-radius: 12px;
+  padding: 20px;
+  width: 220px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pokemon-card:hover {
+  transform: translateY(-5px);
+}
+
+.pokemon-image {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+.pokemon-card h3 {
+  font-family: 'DNFBitBitv2', sans-serif;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-size: 1.5em;
+}
+
+.pokemon-types {
+  display: flex;
+  gap: 5px;
+}
+
+.type-badge {
+  padding: 5px 12px;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.challenge-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.4em;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.challenge-button:hover {
+  background-color: #2980b9;
+}

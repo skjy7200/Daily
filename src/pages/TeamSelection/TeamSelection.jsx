@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { generateDailyChallenge } from '../utils/challengeUtils';
-import { fetchMoveDetailsForPokemon, getPokemonStats } from '../api/pokeApi';
-import '../App.css';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { fetchMoveDetailsForPokemon, getPokemonStats } from '../../api/pokeApi';
+import { generateDailyChallenge } from '../../utils/challengeUtils';
+import './TeamSelection.css';
 
 const typeColors = {
-  "노말": "#A8A77A", "불꽃": "#EE8130", "물": "#6390F0", "전기": "#F7D02C", "풀": "#7AC74C",
-  "얼음": "#96D9D6", "격투": "#C22E28", "독": "#A33EA1", "땅": "#E2BF65", "비행": "#A98FF3",
-  "에스퍼": "#F95587", "벌레": "#A6B91A", "바위": "#B6A136", "고스트": "#735797", "드래곤": "#6F35FC",
-  "강철": "#B7B7CE", "페어리": "#D685AD",
+  "노말": "#A8A77A",
+  "불꽃": "#EE8130",
+  "물": "#6390F0",
+  "전기": "#F7D02C",
+  "풀": "#7AC74C",
+  "얼음": "#96D9D6",
+  "격투": "#C22E28",
+  "독": "#A33EA1",
+  "땅": "#E2BF65",
+  "비행": "#A98FF3",
+  "에스퍼": "#F95587",
+  "벌레": "#A6B91A",
+  "바위": "#B6A136",
+  "고스트": "#735797",
+  "드래곤": "#6F35FC",
+  "강철": "#B7B7CE",
+  "페어리": "#D685AD",
 };
 
 function TeamSelection() {

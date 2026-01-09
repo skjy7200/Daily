@@ -1,9 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
-import Main from './pages/Main';
-import TeamSelection from './pages/TeamSelection';
-import Battle from './pages/Battle';
-import Result from './pages/Result';
+import Main from './pages/Main/Main';
+import TeamSelection from './pages/TeamSelection/TeamSelection';
+import Battle from './pages/Battle/Battle';
+import Result from './pages/Result/Result';
 import DevTools from './components/DevTools';
 
 function App() {
