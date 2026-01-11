@@ -96,10 +96,18 @@ function Battle() {
     const { damage, multiplier } = calculateDamage(attacker, defender, move);
     const newHp = Math.max(0, defender.currentHp - damage);
     if (isPlayerAttacking) {
-      setBattleOpponent(prev => { const n = [...prev]; n[oppCurrentIdx].currentHp = newHp; return n; });
+      setBattleOpponent(prev => { 
+        const n = [...prev]; 
+        n[oppCurrentIdx] = { ...n[oppCurrentIdx], currentHp: newHp }; 
+        return n; 
+      });
       setOppAnim('damage');
     } else {
-      setBattleTeam(prev => { const n = [...prev]; n[myCurrentIdx].currentHp = newHp; return n; });
+      setBattleTeam(prev => { 
+        const n = [...prev]; 
+        n[myCurrentIdx] = { ...n[myCurrentIdx], currentHp: newHp }; 
+        return n; 
+      });
       setMyAnim('damage');
     }
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -126,7 +134,7 @@ function Battle() {
       if (myCurrentIdx < battleTeam.length - 1) setMyCurrentIdx(prev => prev + 1);
       else navigate('/result', { state: { win: false } });
     }
-  }, [battleOpponent, battleTeam]);
+  }, [battleOpponent, battleTeam, myCurrentIdx, oppCurrentIdx, myPokemon, oppPokemon, navigate]);
 
   if (!myTeam.length) return <div>잘못된 접근입니다.</div>;
 

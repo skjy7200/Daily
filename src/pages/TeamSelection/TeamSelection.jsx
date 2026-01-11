@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { fetchMoveDetailsForPokemon, getPokemonStats } from '../../api/pokeApi';
 import { generateDailyChallenge } from '../../utils/challengeUtils';
 import './TeamSelection.css';
