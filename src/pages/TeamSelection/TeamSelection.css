@@ -94,3 +94,43 @@
   background-color: #bdc3c7;
   cursor: not-allowed;
 }
+
+/* --- 모바일 대응 --- */
+@media (max-width: 600px) {
+  .selection-container {
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  .rental-list {
+    gap: 10px;
+  }
+
+  .pokemon-card {
+    width: 46%; /* 2열 배치 */
+    padding: 10px;
+  }
+
+  .pokemon-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .pokemon-card h3 {
+    font-size: 1em;
+  }
+
+  .pokemon-moves {
+    font-size: 0.75em;
+  }
+
+  .start-battle-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+  }
+}

@@ -61,3 +61,53 @@
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
 }
+
+.countdown-section {
+  margin: 30px 0;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.countdown-section p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #888;
+}
+
+.countdown-section .timer {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #e74c3c;
+}
+
+/* --- 모바일 대응 --- */
+@media (max-width: 600px) {
+  .result-card {
+    padding: 30px 20px;
+  }
+
+  .result-card h1 {
+    font-size: 3em !important;
+  }
+
+  .result-message {
+    font-size: 1em;
+  }
+
+  .victory-icon, .defeat-icon {
+    font-size: 4em;
+  }
+
+  .button-group {
+    flex-direction: column; /* 세로 배치 */
+    width: 100%;
+  }
+
+  .retry-button, .share-button {
+    width: 100%;
+    padding: 12px !important;
+    font-size: 1.1em !important;
+  }
+}
