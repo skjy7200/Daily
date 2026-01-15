@@ -10,10 +10,8 @@
 
 .battle-field {
   flex: 1;
-  background-image: url('../../assets/images/battle-bg.png');
-  background-size: 100% 90%; 
-  background-position: center top 10px;
-  background-repeat: no-repeat;
+  /* GBA 스타일: 위쪽은 배경, 아래쪽은 잔디 느낌 */
+  background: linear-gradient(to bottom, #d0f0c0 0%, #d0f0c0 50%, #7ec850 50%, #7ec850 100%);
   position: relative;
   border: 6px solid #3b3b3b;
   border-radius: 4px;
@@ -21,41 +19,133 @@
   overflow: hidden;
 }
 
-.pokemon-area.opponent {
+/* --- HUD (Health Bars) --- */
+.status-bar {
+  background: #f8f8f8;
+  padding: 10px 15px;
+  border: 4px solid #444;
+  width: 240px;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
   position: absolute;
-  top: 15%;
-  right: 15%;
+  z-index: 10;
   display: flex;
   flex-direction: column;
+}
+
+/* 상대 체력바: 좌측 상단 */
+.status-bar.opponent {
+  top: 20px;
+  left: 20px;
+  border-radius: 0 15px 0 15px;
+}
+
+/* 아군 체력바: 우측 하단 */
+.status-bar.player {
+  bottom: 20px;
+  right: 20px;
+  border-radius: 15px 0 15px 0;
+}
+
+.status-info {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 5px;
+}
+
+.status-bar .name {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #333;
+}
+
+.status-bar .level {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #666;
+}
+
+.hp-container {
+  height: 12px; /* 살짝 더 두껍게 */
+  background: #555;
+  border: 2px solid #333;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+/* --- 포켓몬 영역 (포켓몬 + 발판만) --- */
+.pokemon-area.opponent {
+  position: absolute;
+  top: 35%; /* 지평선 위치 */
+  right: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
   z-index: 2;
+  width: 200px;
+  height: 100px;
 }
 
 .pokemon-area.player {
   position: absolute;
-  bottom: 25%;
+  bottom: 15%; 
   left: 15%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 2;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 3;
+  width: 250px;
+  height: 120px;
 }
 
-.pokemon-sprite {
-  width: 150px;
+/* 발판 위치 수정 (포켓몬 중앙 밑으로) */
+.pokemon-area.opponent::before {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 180px;
+  height: 50px;
+  background: #5a9e38;
+  border: 3px solid #4a852c;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.pokemon-area.player::before {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 60px;
+  background: #5a9e38;
+  border: 3px solid #4a852c;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.pokemon-area.opponent .pokemon-sprite {
+  width: 150px; 
   height: 150px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+  margin-bottom: 5px;
 }
 
-.status-bar {
-  background: #f8f8f8;
-  padding: 8px 15px;
-  border: 3px solid #3b3b3b;
-  width: 200px;
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.1);
+.pokemon-area.player .pokemon-sprite {
+  width: 180px; 
+  height: 180px;
   margin-bottom: 5px;
+}
+/* 애니메이션 */
+@keyframes float-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.pokemon-sprite {
+  animation: float-idle 3s ease-in-out infinite;
 }
 
 .status-bar .name {

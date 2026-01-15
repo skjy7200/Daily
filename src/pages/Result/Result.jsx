@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { getCountdownToMidnightKST } from '../../utils/challengeUtils';
 import './Result.css';
 
 function Result() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { win } = location.state || { win: false };
+  const { win, leaderName } = location.state || { win: false, leaderName: '알 수 없는 관장' };
+  const [countdown, setCountdown] = useState(getCountdownToMidnightKST());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown(getCountdownToMidnightKST());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleShare = () => {
-    const message = `[Pokedaily] 오늘의 챌린지 결과\n\n${win ? '🏆 승리했습니다!' : '💀 패배했습니다...'}\n\n매일 새로운 체육관 관장에게 도전하세요!\nhttps://pokedaily.app`;
+    const now = new Date();
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()}`;
+    const message = `[Pokedaily] ${dateStr} 챌린지 결과\nVS ${leaderName}\n\n${win ? '🏆 승리했습니다!' : '💀 패배했습니다...'}\n\n매일 새로운 체육관 관장에게 도전하세요!\nhttps://pokedaily.app`;
     
     navigator.clipboard.writeText(message).then(() => {
       alert('결과가 클립보드에 복사되었습니다!');
@@ -23,12 +34,21 @@ function Result() {
         <h1>{win ? '승리!' : '패배...'}</h1>
         <p className="result-message">
           {win 
-            ? '축하합니다! 체육관 관장을 이겼습니다!' 
-            : '아쉽네요. 다음엔 이길 수 있을 거예요!'}
+            ? `축하합니다! ${leaderName} 관장을 이겼습니다!` 
+            : `아쉽네요. ${leaderName} 관장에게 졌습니다.`}
         </p>
         
         {win && <div className="victory-icon">🏆</div>}
         {!win && <div className="defeat-icon">💀</div>}
+
+        <div className="countdown-section">
+          <p>다음 챌린지까지</p>
+          <div className="timer">
+            {String(countdown.hours).padStart(2, '0')}:
+            {String(countdown.minutes).padStart(2, '0')}:
+            {String(countdown.seconds).padStart(2, '0')}
+          </div>
+        </div>
 
         <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 

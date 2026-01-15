@@ -55,15 +55,17 @@ function Battle() {
     const defenseStat = move.damageClass === 'special' ? defender.stats.spDefense : defender.stats.defense;
     const baseDamage = Math.floor((( (2 * 50 / 5 + 2) * move.power * (attackStat / defenseStat) ) / 50) + 2);
     const multiplier = getTypeMultiplier(move.type, defender.types);
-    const stab = attacker.types.some(t => {
-      const TYPE_MAP_KO_TO_EN = {
-        "노말": "normal", "불꽃": "fire", "물": "water", "풀": "grass", "전기": "electric",
-        "얼음": "ice", "격투": "fighting", "독": "poison", "땅": "ground", "비행": "flying",
-        "에스퍼": "psychic", "벌레": "bug", "바위": "rock", "고스트": "ghost", "드래곤": "dragon",
-        "강철": "steel", "페어리": "fairy"
-      };
-      return TYPE_MAP_KO_TO_EN[t] === move.type;
-    }) ? 1.5 : 1;
+    const stab = attacker.typesEn ? 
+      (attacker.typesEn.includes(move.type) ? 1.5 : 1) : 
+      (attacker.types.some(t => {
+        const TYPE_MAP_KO_TO_EN = {
+          "노말": "normal", "불꽃": "fire", "물": "water", "풀": "grass", "전기": "electric",
+          "얼음": "ice", "격투": "fighting", "독": "poison", "땅": "ground", "비행": "flying",
+          "에스퍼": "psychic", "벌레": "bug", "바위": "rock", "고스트": "ghost", "드래곤": "dragon",
+          "강철": "steel", "페어리": "fairy"
+        };
+        return TYPE_MAP_KO_TO_EN[t] === move.type;
+      }) ? 1.5 : 1);
     const finalDamage = Math.floor(baseDamage * multiplier * stab * (0.85 + Math.random() * 0.15));
     return { damage: finalDamage, multiplier };
   };
@@ -128,11 +130,11 @@ function Battle() {
     if (!myPokemon || !oppPokemon) return;
     if (oppPokemon.currentHp === 0) {
       if (oppCurrentIdx < battleOpponent.length - 1) setOppCurrentIdx(prev => prev + 1);
-      else navigate('/result', { state: { win: true } });
+      else navigate('/result', { state: { win: true, leaderName } });
     }
     if (myPokemon.currentHp === 0) {
       if (myCurrentIdx < battleTeam.length - 1) setMyCurrentIdx(prev => prev + 1);
-      else navigate('/result', { state: { win: false } });
+      else navigate('/result', { state: { win: false, leaderName } });
     }
   }, [battleOpponent, battleTeam, myCurrentIdx, oppCurrentIdx, myPokemon, oppPokemon, navigate]);
 
@@ -141,37 +143,48 @@ function Battle() {
   return (
     <div className="battle-container">
       <div className="battle-field">
-        <div className="pokemon-area opponent">
-          <div className="status-bar">
+        {/* 상대 체력바 (HUD) */}
+        <div className="status-bar opponent">
+          <div className="status-info">
             <span className="name">{oppPokemon.name}</span>
-            <div className="hp-container">
-              <div 
-                className="hp-bar" 
-                style={{ 
-                  width: `${(oppPokemon.currentHp / oppPokemon.maxHp) * 100}%`,
-                  backgroundColor: getHpColor(oppPokemon.currentHp, oppPokemon.maxHp)
-                }}
-              ></div>
-            </div>
-            <span className="hp-text">{oppPokemon.currentHp} / {oppPokemon.maxHp}</span>
+            <span className="level">Lv.50</span>
           </div>
+          <div className="hp-container">
+            <div 
+              className="hp-bar" 
+              style={{ 
+                width: `${(oppPokemon.currentHp / oppPokemon.maxHp) * 100}%`,
+                backgroundColor: getHpColor(oppPokemon.currentHp, oppPokemon.maxHp)
+              }}
+            ></div>
+          </div>
+          <span className="hp-text">{oppPokemon.currentHp} / {oppPokemon.maxHp}</span>
+        </div>
+
+        <div className="pokemon-area opponent">
           <img src={oppPokemon.image} alt={oppPokemon.name} className={`pokemon-sprite ${oppAnim ? `anim-${oppAnim}` : ''}`} />
         </div>
-        <div className="pokemon-area player">
-          <img src={myPokemon.image} alt={myPokemon.name} className={`pokemon-sprite ${myAnim ? `anim-${myAnim}` : ''}`} />
-          <div className="status-bar">
+
+        {/* 아군 체력바 (HUD) */}
+        <div className="status-bar player">
+          <div className="status-info">
             <span className="name">{myPokemon.name}</span>
-            <div className="hp-container">
-              <div 
-                className="hp-bar" 
-                style={{ 
-                  width: `${(myPokemon.currentHp / myPokemon.maxHp) * 100}%`,
-                  backgroundColor: getHpColor(myPokemon.currentHp, myPokemon.maxHp)
-                }}
-              ></div>
-            </div>
-            <span className="hp-text">{myPokemon.currentHp} / {myPokemon.maxHp}</span>
+            <span className="level">Lv.50</span>
           </div>
+          <div className="hp-container">
+            <div 
+              className="hp-bar" 
+              style={{ 
+                width: `${(myPokemon.currentHp / myPokemon.maxHp) * 100}%`,
+                backgroundColor: getHpColor(myPokemon.currentHp, myPokemon.maxHp)
+              }}
+            ></div>
+          </div>
+          <span className="hp-text">{myPokemon.currentHp} / {myPokemon.maxHp}</span>
+        </div>
+
+        <div className="pokemon-area player">
+          <img src={myPokemon.image_back || myPokemon.image} alt={myPokemon.name} className={`pokemon-sprite ${myAnim ? `anim-${myAnim}` : ''}`} />
         </div>
       </div>
       <div className="battle-ui">
