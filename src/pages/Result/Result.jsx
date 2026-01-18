@@ -34,8 +34,8 @@ function Result() {
         <h1>{win ? '승리!' : '패배...'}</h1>
         <p className="result-message">
           {win 
-            ? `축하합니다! ${leaderName} 관장을 이겼습니다!` 
-            : `아쉽네요. ${leaderName} 관장에게 졌습니다.`}
+            ? `축하합니다! ${leaderName}` 
+            : `아쉽네요. ${leaderName}`}
         </p>
         
         {win && <div className="victory-icon">🏆</div>}
