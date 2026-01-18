@@ -1,14 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { generateDailyChallenge } from '../utils/challengeUtils';
-import { fetchMoveDetailsForPokemon, getPokemonStats } from '../api/pokeApi';
-import '../App.css';
+import { fetchMoveDetailsForPokemon, getPokemonStats } from '../../api/pokeApi';
+import { generateDailyChallenge } from '../../utils/challengeUtils';
+import './TeamSelection.css';
 
 const typeColors = {
-  "노말": "#A8A77A", "불꽃": "#EE8130", "물": "#6390F0", "전기": "#F7D02C", "풀": "#7AC74C",
-  "얼음": "#96D9D6", "격투": "#C22E28", "독": "#A33EA1", "땅": "#E2BF65", "비행": "#A98FF3",
-  "에스퍼": "#F95587", "벌레": "#A6B91A", "바위": "#B6A136", "고스트": "#735797", "드래곤": "#6F35FC",
-  "강철": "#B7B7CE", "페어리": "#D685AD",
+  "노말": "#A8A77A",
+  "불꽃": "#EE8130",
+  "물": "#6390F0",
+  "전기": "#F7D02C",
+  "풀": "#7AC74C",
+  "얼음": "#96D9D6",
+  "격투": "#C22E28",
+  "독": "#A33EA1",
+  "땅": "#E2BF65",
+  "비행": "#A98FF3",
+  "에스퍼": "#F95587",
+  "벌레": "#A6B91A",
+  "바위": "#B6A136",
+  "고스트": "#735797",
+  "드래곤": "#6F35FC",
+  "강철": "#B7B7CE",
+  "페어리": "#D685AD",
 };
 
 function TeamSelection() {
@@ -16,32 +29,43 @@ function TeamSelection() {
   const [rentalPokemon, setRentalPokemon] = useState([]);
   const [leaderData, setLeaderData] = useState(null); // 관장 정보 + 포켓몬 데이터
   const [selectedTeam, setSelectedTeam] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const initData = async () => {
-      const { rentalPokemon, leader, leaderPokemon } = generateDailyChallenge();
-      
-      // 1. 렌탈 포켓몬 데이터 보강 (기술 한글명, 종족값)
-      const enrichedRental = await Promise.all(rentalPokemon.map(async (p) => {
-        const moves = await fetchMoveDetailsForPokemon(p.moves);
-        const stats = await getPokemonStats(p.id);
-        return { ...p, moves, stats, maxHp: stats.hp, currentHp: stats.hp }; // maxHp, currentHp 초기화
-      }));
+    // pokemonData.json이 이미 완성되어 있으므로 추가 fetch 불필요
+    const { rentalPokemon, leader, leaderPokemon } = generateDailyChallenge();
+    
+    // 초기 HP 설정 (데이터에 maxHp가 있다면 그것을 사용, 없다면 stats.hp 기반 계산)
+    // 하지만 fetchData.js에서 이미 maxHp를 넣어두었음.
+    // 안전을 위해 stats.hp를 기반으로 실능(Lv.50) 계산 로직이 필요하다면 여기서 처리하거나
+    // fetchData.js가 이미 실능을 저장했는지 확인해야 함.
+    // fetchData.js는 base_stat을 저장했으므로, 실능 변환 로직이 필요함.
 
-      // 2. 관장 포켓몬 데이터 보강
-      const enrichedLeaderPokemon = await Promise.all(leaderPokemon.map(async (p) => {
-        const moves = await fetchMoveDetailsForPokemon(p.moves);
-        const stats = await getPokemonStats(p.id);
-        return { ...p, moves, stats, maxHp: stats.hp, currentHp: stats.hp };
-      }));
-      
-      setRentalPokemon(enrichedRental);
-      setLeaderData({ name: leader, pokemon: enrichedLeaderPokemon });
-      setLoading(false);
+    const calculateStats = (baseStats) => {
+      const level = 50;
+      const iv = 31;
+      const ev = 0;
+      return {
+        hp: Math.floor((baseStats.hp * 2 + iv + Math.floor(ev / 4)) * level / 100) + level + 10,
+        attack: Math.floor((baseStats.attack * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+        defense: Math.floor((baseStats.defense * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+        spAttack: Math.floor((baseStats.spAttack * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+        spDefense: Math.floor((baseStats.spDefense * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+        speed: Math.floor((baseStats.speed * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+      };
     };
 
-    initData();
+    const processPokemon = (list) => list.map(p => {
+      const realStats = calculateStats(p.stats);
+      return {
+        ...p,
+        stats: realStats,
+        maxHp: realStats.hp,
+        currentHp: realStats.hp
+      };
+    });
+
+    setRentalPokemon(processPokemon(rentalPokemon));
+    setLeaderData({ name: leader, pokemon: processPokemon(leaderPokemon) });
   }, []);
 
   const toggleSelect = (pokemon) => {
@@ -63,10 +87,6 @@ function TeamSelection() {
       }});
     }
   };
-
-  if (loading) {
-    return <div className="selection-container"><h2>포켓몬 데이터를 불러오는 중입니다...</h2></div>;
-  }
 
   return (
     <div className="selection-container">

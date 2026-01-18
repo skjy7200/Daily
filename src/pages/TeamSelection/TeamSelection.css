@@ -1,0 +1,136 @@
+.selection-container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  width: 95%;
+  margin: 20px auto;
+}
+
+.rental-list {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Common Pokemon Card Styles used here as well */
+.pokemon-card {
+  background-color: #ecf0f1;
+  border-radius: 12px;
+  padding: 20px;
+  width: 220px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pokemon-card:hover {
+  transform: translateY(-5px);
+}
+
+.pokemon-card.selected {
+  background-color: #fff9db;
+  box-shadow: 0 0 15px #ffcb05;
+}
+
+.pokemon-image {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+.pokemon-card h3 {
+  font-family: 'DNFBitBitv2', sans-serif;
+  color: #2c3e50;
+  margin-bottom: 12px;
+  font-size: 1.5em;
+}
+
+.pokemon-types {
+  display: flex;
+  gap: 5px;
+}
+
+.type-badge {
+  padding: 5px 12px;
+  border-radius: 5px;
+  color: white;
+  font-size: 0.9em;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+}
+
+.pokemon-moves {
+  margin-top: 10px;
+  font-size: 0.85em;
+  color: #666;
+  text-align: center;
+}
+
+.start-battle-button {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 15px 30px;
+  font-size: 1.2em;
+  margin-top: 30px;
+}
+
+.start-battle-button:hover:not(:disabled) {
+  background-color: #27ae60;
+}
+
+.start-battle-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* --- 모바일 대응 --- */
+@media (max-width: 600px) {
+  .selection-container {
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  .rental-list {
+    gap: 10px;
+  }
+
+  .pokemon-card {
+    width: 46%; /* 2열 배치 */
+    padding: 10px;
+  }
+
+  .pokemon-image {
+    width: 80px;
+    height: 80px;
+  }
+
+  .pokemon-card h3 {
+    font-size: 1em;
+  }
+
+  .pokemon-moves {
+    font-size: 0.75em;
+  }
+
+  .start-battle-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1em;
+  }
+}

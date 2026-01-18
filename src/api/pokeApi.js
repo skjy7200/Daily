@@ -73,7 +73,7 @@ export const getMoveDetails = async (url) => {
     const moveDetails = {
       name: data.name,
       nameKo: nameKo,
-      power: data.power || 40, // 위력이 없는 기술(변화기 등)은 기본 40 처리 (추후 로직 개선 필요)
+      power: data.power || 0, // 위력이 없는 기술(변화기 등)은 0 처리
       accuracy: data.accuracy || 100,
       pp: data.pp,
       type: data.type.name,
