@@ -38,6 +38,12 @@ function Result() {
             : `아쉽네요. ${leaderName}`}
         </p>
         
+        {win && (
+          <div className="badge-container">
+            <img src={`/badges/${leaderName}.png`} alt={`${leaderName} 배지`} className="badge-image" />
+            <p className="badge-message">{`${leaderName} 배지를 획득했다!`}</p>
+          </div>
+        )}
         {win && <div className="victory-icon">🏆</div>}
         {!win && <div className="defeat-icon">💀</div>}
 
