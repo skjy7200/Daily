@@ -56,7 +56,12 @@
         "power": 40,
         "accuracy": 100,
         "pp": 35,
-        "damageClass": "physical"
+        "damageClass": "physical",
+        "effect": {
+          "type": "status",
+          "condition": "poison",
+          "chance": 0.3
+        }
       }
     ],
     "maxHp": 45
