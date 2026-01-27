@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getTypeMultiplier } from '../../utils/typeUtils';
+import { calculateDamage, canAttack, processEndOfTurnStatus } from '../../utils/battleUtils';
 import './Battle.css';
 
 function Battle() {
@@ -10,8 +10,8 @@ function Battle() {
 
   const [myCurrentIdx, setMyCurrentIdx] = useState(0);
   const [oppCurrentIdx, setOppCurrentIdx] = useState(0);
-  const [battleTeam, setBattleTeam] = useState(myTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null })));
-  const [battleOpponent, setBattleOpponent] = useState(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null })));
+  const [battleTeam, setBattleTeam] = useState(myTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0 })));
+  const [battleOpponent, setBattleOpponent] = useState(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0 })));
   const [logs, setLogs] = useState([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
   const [isProcessing, setIsProcessing] = useState(false);
   
@@ -42,35 +42,13 @@ function Battle() {
   };
 
   const processStatusEffects = async () => {
-    // Process myPokemon's status
-    // Make sure myPokemon is not null before accessing its properties
-    if (myPokemon && myPokemon.status === 'poison' && myPokemon.currentHp > 0) {
-      const poisonDamage = Math.max(1, Math.floor(myPokemon.maxHp / 8)); // 1/8th of max HP, min 1
-      const newHp = Math.max(0, myPokemon.currentHp - poisonDamage);
-      setBattleTeam(prev => {
-        const n = [...prev];
-        n[myCurrentIdx] = { ...n[myCurrentIdx], currentHp: newHp };
-        return n;
-      });
-      addLog(`${myPokemon.name}은(는) 독 데미지를 입었다! (${poisonDamage})`);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-
-    // Process oppPokemon's status
-    // Make sure oppPokemon is not null before accessing its properties
-    if (oppPokemon && oppPokemon.status === 'poison' && oppPokemon.currentHp > 0) {
-      const poisonDamage = Math.max(1, Math.floor(oppPokemon.maxHp / 8));
-      const newHp = Math.max(0, oppPokemon.currentHp - poisonDamage);
-      setBattleOpponent(prev => {
-        const n = [...prev];
-        n[oppCurrentIdx] = { ...n[oppCurrentIdx], currentHp: newHp };
-        return n;
-      });
-      addLog(`${oppPokemon.name}은(는) 독 데미지를 입었다! (${poisonDamage})`);
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
+    await new Promise(resolve => setTimeout(resolve, 500));
+    processEndOfTurnStatus(myPokemon, setBattleTeam, addLog);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    processEndOfTurnStatus(oppPokemon, setBattleOpponent, addLog);
+    await new Promise(resolve => setTimeout(resolve, 500));
   };
-
+  
   // 로그 내용에 따른 클래스 부여
   const getLogClass = (log) => {
     if (log.includes('효과가 굉장했다')) return 'log-super-effective';
@@ -80,30 +58,14 @@ function Battle() {
     return '';
   };
 
-  const calculateDamage = (attacker, defender, move) => {
-    const attackStat = move.damageClass === 'special' ? attacker.stats.spAttack : attacker.stats.attack;
-    const defenseStat = move.damageClass === 'special' ? defender.stats.spDefense : defender.stats.defense;
-    const baseDamage = Math.floor((( (2 * 50 / 5 + 2) * move.power * (attackStat / defenseStat) ) / 50) + 2);
-    const multiplier = getTypeMultiplier(move.type, defender.types);
-    const stab = attacker.typesEn ? 
-      (attacker.typesEn.includes(move.type) ? 1.5 : 1) : 
-      (attacker.types.some(t => {
-        const TYPE_MAP_KO_TO_EN = {
-          "노말": "normal", "불꽃": "fire", "물": "water", "풀": "grass", "전기": "electric",
-          "얼음": "ice", "격투": "fighting", "독": "poison", "땅": "ground", "비행": "flying",
-          "에스퍼": "psychic", "벌레": "bug", "바위": "rock", "고스트": "ghost", "드래곤": "dragon",
-          "강철": "steel", "페어리": "fairy"
-        };
-        return TYPE_MAP_KO_TO_EN[t] === move.type;
-      }) ? 1.5 : 1);
-    const finalDamage = Math.floor(baseDamage * multiplier * stab * (0.85 + Math.random() * 0.15));
-    return { damage: finalDamage, multiplier };
-  };
-
   const handleMoveSelection = async (move) => {
     if (isProcessing || !myPokemon || !oppPokemon) return;
     setIsProcessing(true);
-    const myFirst = myPokemon.stats.speed >= oppPokemon.stats.speed;
+
+    const mySpeed = myPokemon.status === 'paralysis' ? myPokemon.stats.speed / 2 : myPokemon.stats.speed;
+    const oppSpeed = oppPokemon.status === 'paralysis' ? oppPokemon.stats.speed / 2 : oppPokemon.stats.speed;
+    const myFirst = mySpeed >= oppSpeed;
+
     if (myFirst) {
       await executeTurn(myPokemon, oppPokemon, move, true);
       if (oppPokemon.currentHp > 0) {
@@ -117,87 +79,140 @@ function Battle() {
     }
     
     // Process status effects after both turns
-    await processStatusEffects();
+    if (myPokemon.currentHp > 0 || oppPokemon.currentHp > 0) {
+      await processStatusEffects();
+    }
 
     setIsProcessing(false);
   };
 
   const executeTurn = async (attacker, defender, move, isPlayerAttacking) => {
+    
+    const setAttackerState = isPlayerAttacking ? setBattleTeam : setBattleOpponent;
+    const setDefenderState = isPlayerAttacking ? setBattleOpponent : setBattleTeam;
+    const attackerIdx = isPlayerAttacking ? myCurrentIdx : oppCurrentIdx;
+
+    let attackerCanAttack = true;
+    setAttackerState(prev => {
+        const n = [...prev];
+        const currentAttacker = { ...n[attackerIdx] };
+        attackerCanAttack = canAttack(currentAttacker, addLog);
+        n[attackerIdx] = currentAttacker;
+        return n;
+    });
+
+    if (!attackerCanAttack) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return;
+    }
+
     addLog(`${attacker.name}의 ${move.nameKo}!`);
     if (isPlayerAttacking) setMyAnim('attack-player');
     else setOppAnim('attack-opponent');
     await new Promise(resolve => setTimeout(resolve, 400));
     setMyAnim(''); setOppAnim('');
 
-    const { damage, multiplier } = calculateDamage(attacker, defender, move);
-        let newHp = Math.max(0, defender.currentHp - damage);
-        let updatedDefender = { ...defender, currentHp: newHp };
-    
-        // Apply status effect if move has one and chance passes
-        if (move.effect && move.effect.type === 'status' && Math.random() < move.effect.chance) {
-          if (updatedDefender.status !== move.effect.condition && newHp > 0) { // Only apply if not already affected and not fainted
-            updatedDefender.status = move.effect.condition;
-            addLog(`${updatedDefender.name}은(는) ${move.effect.condition}에 걸렸다!`);
-          }
-        }
-    
-        if (isPlayerAttacking) {
-          setBattleOpponent(prev => {
-            const n = [...prev];
-            n[oppCurrentIdx] = updatedDefender;
-            return n;
-          });
-          setOppAnim('damage');
-        } else {
-          setBattleTeam(prev => {
-            const n = [...prev];
-            n[myCurrentIdx] = updatedDefender;
-            return n;
-          });
-          setMyAnim('damage');
-        }
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setMyAnim(''); setOppAnim('');
-    
-        if (multiplier > 1) addLog("효과가 굉장했다!");
-        else if (multiplier > 0 && multiplier < 1) addLog("효과가 별로인 듯하다...");
-        await new Promise(resolve => setTimeout(resolve, 500));
-    
-        // If fainted, clear status
-        if (newHp === 0) {
-          if (isPlayerAttacking) setOppAnim('faint'); else setMyAnim('faint');
-          addLog(`${defender.name}은(는) 쓰러졌다!`);
-          updatedDefender.status = null; // Clear status on faint
-          if (isPlayerAttacking) {
-            setBattleOpponent(prev => {
-              const n = [...prev];
-              n[oppCurrentIdx] = updatedDefender;
-              return n;
-            });
-          } else {
-            setBattleTeam(prev => {
-              const n = [...prev];
-              n[myCurrentIdx] = updatedDefender;
-              return n;
-            });
-          }
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      };
+    // 명중률 체크
+    if (move.accuracy && Math.random() * 100 > move.accuracy) {
+      addLog('그러나 기술은 빗나갔다!');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      return;
+    }
 
+    let updatedDefender;
+    if (move.power > 0) {
+      const { damage, multiplier } = calculateDamage(attacker, defender, move);
+      const newHp = Math.max(0, defender.currentHp - damage);
+      updatedDefender = { ...defender, currentHp: newHp };
+      
+      if (isPlayerAttacking) setOppAnim('damage'); else setMyAnim('damage');
+      
+      setDefenderState(prev => {
+        const n = [...prev];
+        const idx = n.findIndex(p => p.id === defender.id);
+        n[idx] = updatedDefender;
+        return n;
+      });
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setMyAnim(''); setOppAnim('');
+
+      if (multiplier > 1) addLog("효과가 굉장했다!");
+      else if (multiplier > 0 && multiplier < 1) addLog("효과가 별로인 듯하다...");
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } else {
+      updatedDefender = { ...defender };
+    }
+
+
+    // 상태이상 효과 적용
+    if (move.effect && Math.random() < move.effect.chance) {
+      if (updatedDefender.status !== move.effect.condition && updatedDefender.currentHp > 0) {
+        
+        let statusApplied = true;
+        // 타입에 따른 면역 체크 (예: 독타입은 독/맹독에 걸리지 않음)
+        if (move.effect.condition === 'poison' && (updatedDefender.types.includes('독') || updatedDefender.types.includes('강철'))) {
+            statusApplied = false;
+        }
+        if (move.effect.condition === 'burn' && updatedDefender.types.includes('불꽃')) {
+            statusApplied = false;
+        }
+
+        if(statusApplied) {
+            updatedDefender.status = move.effect.condition;
+            if (move.effect.condition === 'sleep') {
+              updatedDefender.statusTurns = Math.floor(Math.random() * 3) + 1; // 1~3턴간 잠
+            }
+            addLog(`${updatedDefender.name}은(는) ${move.effect.condition}에 걸렸다!`);
+        }
+      }
+    }
+        
+    setDefenderState(prev => {
+        const n = [...prev];
+        const idx = n.findIndex(p => p.id === updatedDefender.id);
+        n[idx] = updatedDefender;
+        return n;
+    });
+
+    if (updatedDefender.currentHp === 0) {
+      if (isPlayerAttacking) setOppAnim('faint'); else setMyAnim('faint');
+      addLog(`${updatedDefender.name}은(는) 쓰러졌다!`);
+      updatedDefender.status = null;
+      setDefenderState(prev => {
+        const n = [...prev];
+        const idx = n.findIndex(p => p.id === updatedDefender.id);
+        n[idx] = updatedDefender;
+        return n;
+      });
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  };
+  
   useEffect(() => {
     if (!myPokemon || !oppPokemon) return;
-    if (oppPokemon.currentHp === 0) {
-      if (oppCurrentIdx < battleOpponent.length - 1) setOppCurrentIdx(prev => prev + 1);
-      else navigate('/result', { state: { win: true, leaderName } });
+    const checkFainted = async () => {
+      if (oppPokemon.currentHp === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (oppCurrentIdx < battleOpponent.length - 1) {
+          setOppCurrentIdx(prev => prev + 1);
+          addLog(`${leaderName}은(는) 다음 포켓몬을 내보냈다!`);
+        }
+        else navigate('/result', { state: { win: true, leaderName } });
+      }
+      if (myPokemon.currentHp === 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+        if (myCurrentIdx < battleTeam.length - 1) {
+          setMyCurrentIdx(prev => prev + 1);
+          addLog(`가라! ${battleTeam[myCurrentIdx+1].name}!`);
+        }
+        else navigate('/result', { state: { win: false, leaderName } });
+      }
     }
-    if (myPokemon.currentHp === 0) {
-      if (myCurrentIdx < battleTeam.length - 1) setMyCurrentIdx(prev => prev + 1);
-      else navigate('/result', { state: { win: false, leaderName } });
-    }
-  }, [battleOpponent, battleTeam, myCurrentIdx, oppCurrentIdx, myPokemon, oppPokemon, navigate]);
+    if(!isProcessing) checkFainted();
+  }, [battleOpponent, battleTeam, myCurrentIdx, oppCurrentIdx, myPokemon, oppPokemon, navigate, isProcessing]);
 
   if (!myTeam.length) return <div>잘못된 접근입니다.</div>;
+  if (!myPokemon || !oppPokemon) return <div>포켓몬 로딩 중...</div>
 
   return (
     <div className="battle-container">
@@ -206,7 +221,7 @@ function Battle() {
         <div className="status-bar opponent">
           <div className="status-info">
             <span className="name">{oppPokemon.name}</span>
-            {oppPokemon.status && <span className={`status-text ${oppPokemon.status}`}>{oppPokemon.status}</span>}
+            {oppPokemon.status && <span className={`status-text ${oppPokemon.status}`}>{oppPokemon.status.toUpperCase()}</span>}
             <span className="level">Lv.50</span>
           </div>
           <div className="hp-container">
@@ -229,7 +244,7 @@ function Battle() {
         <div className="status-bar player">
           <div className="status-info">
             <span className="name">{myPokemon.name}</span>
-            {myPokemon.status && <span className={`status-text ${myPokemon.status}`}>{myPokemon.status}</span>}
+            {myPokemon.status && <span className={`status-text ${myPokemon.status}`}>{myPokemon.status.toUpperCase()}</span>}
             <span className="level">Lv.50</span>
           </div>
           <div className="hp-container">
@@ -255,7 +270,7 @@ function Battle() {
               key={move.name} 
               className="move-button" 
               onClick={() => handleMoveSelection(move)} 
-              disabled={isProcessing}
+              disabled={isProcessing || myPokemon.currentHp === 0}
               style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
             >
               {move.nameKo}

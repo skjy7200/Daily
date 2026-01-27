@@ -1453,7 +1453,12 @@
         "power": 50,
         "accuracy": 90,
         "pp": 10,
-        "damageClass": "special"
+        "damageClass": "special",
+        "effect": {
+          "type": "status",
+          "condition": "paralysis",
+          "chance": 0.3
+        }
       },
       {
         "name": "tera-blast",
@@ -2292,6 +2297,20 @@
       "speed": 20
     },
     "moves": [
+      {
+        "name": "sing",
+        "nameKo": "노래하기",
+        "type": "normal",
+        "power": 0,
+        "accuracy": 55,
+        "pp": 15,
+        "damageClass": "status",
+        "effect": {
+          "type": "status",
+          "condition": "sleep",
+          "chance": 1.0
+        }
+      },
       {
         "name": "ice-punch",
         "nameKo": "냉동펀치",
@@ -3452,6 +3471,20 @@
       "speed": 60
     },
     "moves": [
+      {
+        "name": "ember",
+        "nameKo": "불꽃세례",
+        "type": "fire",
+        "power": 40,
+        "accuracy": 100,
+        "pp": 25,
+        "damageClass": "special",
+        "effect": {
+          "type": "status",
+          "condition": "burn",
+          "chance": 0.1
+        }
+      },
       {
         "name": "flamethrower",
         "nameKo": "화염방사",
@@ -7887,6 +7920,20 @@
       "speed": 60
     },
     "moves": [
+      {
+        "name": "ice-beam",
+        "nameKo": "냉동빔",
+        "type": "ice",
+        "power": 90,
+        "accuracy": 100,
+        "pp": 10,
+        "damageClass": "special",
+        "effect": {
+          "type": "status",
+          "condition": "freeze",
+          "chance": 0.1
+        }
+      },
       {
         "name": "future-sight",
         "nameKo": "미래예지",
