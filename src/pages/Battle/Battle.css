@@ -462,3 +462,28 @@
 .status-text.poison {
   background-color: #A33EA1; /* Poison type color */
 }
+
+/* Move Details Box */
+.move-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 10px;
+  font-family: 'DNFBitBitv2', sans-serif;
+}
+
+.move-details h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.move-details p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.move-details span {
+  font-weight: bold;
+}

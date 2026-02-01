@@ -14,6 +14,8 @@ function Battle() {
   const [battleOpponent, setBattleOpponent] = useState(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0 })));
   const [logs, setLogs] = useState([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hoveredMove, setHoveredMove] = useState(null);
+  
   
   const [myAnim, setMyAnim] = useState('');
   const [oppAnim, setOppAnim] = useState('');
@@ -269,6 +271,8 @@ function Battle() {
             <button 
               key={move.name} 
               className="move-button" 
+              onMouseEnter={() => setHoveredMove(move)}
+              onMouseLeave={() => setHoveredMove(null)}
               onClick={() => handleMoveSelection(move)} 
               disabled={isProcessing || myPokemon.currentHp === 0}
               style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
@@ -279,9 +283,19 @@ function Battle() {
           ))}
         </div>
         <div className="battle-log">
-          {logs.map((log, i) => (
-            <p key={i} className={getLogClass(log)}>{log}</p>
-          ))}
+          {hoveredMove ? (
+            <div className="move-details">
+              <h3>{hoveredMove.nameKo}</h3>
+              <p>타입: <span style={{color: typeColors[hoveredMove.type]}}>{hoveredMove.type}</span></p>
+              <p>위력: {hoveredMove.power || '—'}</p>
+              <p>명중률: {hoveredMove.accuracy || '—'}</p>
+              <p>분류: {hoveredMove.damageClass === 'physical' ? '물리' : '특수'}</p>
+            </div>
+          ) : (
+            logs.map((log, i) => (
+              <p key={i} className={getLogClass(log)}>{log}</p>
+            ))
+          )}
         </div>
       </div>
     </div>
