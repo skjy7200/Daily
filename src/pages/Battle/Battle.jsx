@@ -1,24 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { calculateDamage, canAttack, processEndOfTurnStatus } from '../../utils/battleUtils';
+import { useNavigate } from 'react-router-dom';
+import useBattleStore from '../../store/battleStore';
+import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects } from '../../utils/battleUtils';
 import './Battle.css';
 
 function Battle() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { myTeam, opponentTeam, leaderName } = location.state || { myTeam: [], opponentTeam: [], leaderName: '' };
+  const { userTeam, opponentTeam, leaderName, setBattleOutcome } = useBattleStore();
 
   const [myCurrentIdx, setMyCurrentIdx] = useState(0);
   const [oppCurrentIdx, setOppCurrentIdx] = useState(0);
-  const [battleTeam, setBattleTeam] = useState(myTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0 })));
-  const [battleOpponent, setBattleOpponent] = useState(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0 })));
-  const [logs, setLogs] = useState([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
+  const [battleTeam, setBattleTeam] = useState([]);
+  const [battleOpponent, setBattleOpponent] = useState([]);
+  const [logs, setLogs] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [hoveredMove, setHoveredMove] = useState(null);
   
-  
   const [myAnim, setMyAnim] = useState('');
   const [oppAnim, setOppAnim] = useState('');
+
+  // 스토어 데이터로 컴포넌트 내부 상태 초기화
+  useEffect(() => {
+    // 팀 선택 없이 들어온 경우 메인으로 리디렉션
+    if (!userTeam || userTeam.length === 0) {
+      navigate('/');
+      return;
+    }
+
+    setBattleTeam(userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0 } })));
+    setBattleOpponent(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0 } })));
+    setLogs([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
+  }, [userTeam, opponentTeam, leaderName, navigate]);
+
 
   const myPokemon = battleTeam[myCurrentIdx];
   const oppPokemon = battleOpponent[oppCurrentIdx];
@@ -145,29 +158,8 @@ function Battle() {
       updatedDefender = { ...defender };
     }
 
-
-    // 상태이상 효과 적용
-    if (move.effect && Math.random() < move.effect.chance) {
-      if (updatedDefender.status !== move.effect.condition && updatedDefender.currentHp > 0) {
-        
-        let statusApplied = true;
-        // 타입에 따른 면역 체크 (예: 독타입은 독/맹독에 걸리지 않음)
-        if (move.effect.condition === 'poison' && (updatedDefender.types.includes('독') || updatedDefender.types.includes('강철'))) {
-            statusApplied = false;
-        }
-        if (move.effect.condition === 'burn' && updatedDefender.types.includes('불꽃')) {
-            statusApplied = false;
-        }
-
-        if(statusApplied) {
-            updatedDefender.status = move.effect.condition;
-            if (move.effect.condition === 'sleep') {
-              updatedDefender.statusTurns = Math.floor(Math.random() * 3) + 1; // 1~3턴간 잠
-            }
-            addLog(`${updatedDefender.name}은(는) ${move.effect.condition}에 걸렸다!`);
-        }
-      }
-    }
+    // 모든 부가 효과 (상태이상, 능력치 변화 등) 처리
+    await applyMoveEffects(move, attacker, updatedDefender, setAttackerState, setDefenderState, addLog);
         
     setDefenderState(prev => {
         const n = [...prev];
@@ -198,23 +190,26 @@ function Battle() {
         if (oppCurrentIdx < battleOpponent.length - 1) {
           setOppCurrentIdx(prev => prev + 1);
           addLog(`${leaderName}은(는) 다음 포켓몬을 내보냈다!`);
+        } else {
+          setBattleOutcome('win');
+          navigate('/result');
         }
-        else navigate('/result', { state: { win: true, leaderName } });
       }
       if (myPokemon.currentHp === 0) {
         await new Promise(resolve => setTimeout(resolve, 500));
         if (myCurrentIdx < battleTeam.length - 1) {
           setMyCurrentIdx(prev => prev + 1);
           addLog(`가라! ${battleTeam[myCurrentIdx+1].name}!`);
+        } else {
+          setBattleOutcome('loss');
+          navigate('/result');
         }
-        else navigate('/result', { state: { win: false, leaderName } });
       }
     }
     if(!isProcessing) checkFainted();
-  }, [battleOpponent, battleTeam, myCurrentIdx, oppCurrentIdx, myPokemon, oppPokemon, navigate, isProcessing]);
+  }, [battleOpponent, battleTeam, myCurrentIdx, oppCurrentIdx, myPokemon, oppPokemon, navigate, isProcessing, leaderName, setBattleOutcome]);
 
-  if (!myTeam.length) return <div>잘못된 접근입니다.</div>;
-  if (!myPokemon || !oppPokemon) return <div>포켓몬 로딩 중...</div>
+  if (!userTeam.length || !myPokemon || !oppPokemon) return <div>데이터를 불러오는 중...</div>;
 
   return (
     <div className="battle-container">

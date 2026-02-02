@@ -67,11 +67,33 @@ async function fetchPokemonData() {
         try {
           const { data: moveData } = await axios.get(url);
           
-          // 공격 기술 필터링 (status 기술 제외, power가 있는 기술)
-          if (moveData.damage_class.name !== 'status' && moveData.power !== null) {
+          // 공격 기술 필터링 (위력이 있거나, 'damage' 카테고리에 속하는 기술)
+          if (moveData.power || (moveData.meta && moveData.meta.category.name.startsWith('damage'))) {
             const moveNameKoObj = moveData.names.find(n => n.language.name === 'ko');
             const nameKo = moveNameKoObj ? moveNameKoObj.name : moveData.name;
             
+            // 부가 효과 처리 (상태이상, 능력치 변화 등)
+            const moveEffect = {};
+
+            // 1. 상태이상 효과
+            if (moveData.meta?.ailment?.name && moveData.meta.ailment.name !== 'none' && moveData.effect_chance) {
+              moveEffect.condition = moveData.meta.ailment.name;
+              moveEffect.chance = moveData.effect_chance / 100;
+            }
+
+            // 2. 능력치 변화 효과
+            if (moveData.stat_changes && moveData.stat_changes.length > 0) {
+              moveEffect.stat_changes = moveData.stat_changes.map(sc => ({
+                stat: STAT_TRANSLATIONS[sc.stat.name], // 'special-attack' -> 'spAttack'
+                change: sc.change // e.g., +1, -2
+              }));
+              // 일부 기술은 확률적으로 능력치 변화가 터짐. 이 경우 effect_chance를 사용.
+              // 여기서는 모든 stat_change가 100% 발동한다고 가정. 필요시 `moveData.effect_chance` 활용.
+              if (moveData.effect_chance && !moveEffect.chance) {
+                  moveEffect.chance = moveData.effect_chance / 100;
+              }
+            }
+
             selectedMoves.push({
               name: moveData.name,
               nameKo: nameKo,
@@ -79,7 +101,10 @@ async function fetchPokemonData() {
               power: moveData.power,
               accuracy: moveData.accuracy,
               pp: moveData.pp,
-              damageClass: moveData.damage_class.name
+              damageClass: moveData.damage_class.name,
+              category: moveData.meta.category.name, // 기술 카테고리 추가
+              // moveEffect 객체에 키가 하나라도 있으면 객체를, 없으면 null을 할당
+              effect: Object.keys(moveEffect).length > 0 ? moveEffect : null,
             });
           }
         } catch (e) {

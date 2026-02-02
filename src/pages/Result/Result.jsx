@@ -1,25 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import useBattleStore from '../../store/battleStore';
 import { getCountdownToMidnightKST } from '../../utils/challengeUtils';
 import './Result.css';
 
 function Result() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { win, leaderName } = location.state || { win: false, leaderName: '알 수 없는 관장' };
+  const { battleOutcome, leaderName, reset: resetBattleState } = useBattleStore();
+  const win = battleOutcome === 'win';
+
   const [countdown, setCountdown] = useState(getCountdownToMidnightKST());
 
   useEffect(() => {
+    // battleOutcome이 없으면, 비정상적인 접근으로 간주하고 메인으로 보냄
+    if (battleOutcome === null) {
+      navigate('/');
+      return;
+    }
+
     const timer = setInterval(() => {
       setCountdown(getCountdownToMidnightKST());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [battleOutcome, navigate]);
 
   const handleShare = () => {
     const now = new Date();
     const dateStr = `${now.getMonth() + 1}/${now.getDate()}`;
-    const message = `[Pokedaily] ${dateStr} 챌린지 결과\nVS ${leaderName}\n\n${win ? '🏆 승리했습니다!' : '💀 패배했습니다...'}\n\n매일 새로운 체육관 관장에게 도전하세요!\nhttps://pokedaily.app`;
+    const effectiveLeaderName = leaderName || '오늘의 관장';
+    const message = `[Pokedaily] ${dateStr} 챌린지 결과\nVS ${effectiveLeaderName}\n\n${win ? '🏆 승리했습니다!' : '💀 패배했습니다...'}\n\n매일 새로운 체육관 관장에게 도전하세요!\nhttps://pokedaily.app`;
     
     navigator.clipboard.writeText(message).then(() => {
       alert('결과가 클립보드에 복사되었습니다!');
@@ -27,6 +36,16 @@ function Result() {
       console.error('복사 실패:', err);
     });
   };
+  
+  const handleRetry = () => {
+    resetBattleState();
+    navigate('/select');
+  };
+
+  // battleOutcome이 아직 설정되지 않았을 때 렌더링을 방지
+  if (battleOutcome === null) {
+    return null; // 또는 로딩 스피너
+  }
 
   return (
     <div className="result-container">
@@ -59,7 +78,7 @@ function Result() {
         <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
           <button 
             className="retry-button"
-            onClick={() => navigate('/select')}
+            onClick={handleRetry}
           >
             다시 도전하기
           </button>

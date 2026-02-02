@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchMoveDetailsForPokemon, getPokemonStats } from '../../api/pokeApi';
 import { generateDailyChallenge } from '../../utils/challengeUtils';
+import useBattleStore from '../../store/battleStore'; // Zustand 스토어 import
 import './TeamSelection.css';
 
 const typeColors = {
@@ -26,19 +26,14 @@ const typeColors = {
 
 function TeamSelection() {
   const navigate = useNavigate();
+  const setBattleTeams = useBattleStore((state) => state.setBattleTeams); // 스토어 액션 가져오기
+
   const [rentalPokemon, setRentalPokemon] = useState([]);
-  const [leaderData, setLeaderData] = useState(null); // 관장 정보 + 포켓몬 데이터
+  const [leaderData, setLeaderData] = useState(null);
   const [selectedTeam, setSelectedTeam] = useState([]);
 
   useEffect(() => {
-    // pokemonData.json이 이미 완성되어 있으므로 추가 fetch 불필요
     const { rentalPokemon, leader, leaderPokemon } = generateDailyChallenge();
-    
-    // 초기 HP 설정 (데이터에 maxHp가 있다면 그것을 사용, 없다면 stats.hp 기반 계산)
-    // 하지만 fetchData.js에서 이미 maxHp를 넣어두었음.
-    // 안전을 위해 stats.hp를 기반으로 실능(Lv.50) 계산 로직이 필요하다면 여기서 처리하거나
-    // fetchData.js가 이미 실능을 저장했는지 확인해야 함.
-    // fetchData.js는 base_stat을 저장했으므로, 실능 변환 로직이 필요함.
 
     const calculateStats = (baseStats) => {
       const level = 50;
@@ -80,11 +75,10 @@ function TeamSelection() {
 
   const startBattle = () => {
     if (selectedTeam.length === 3 && leaderData) {
-      navigate('/battle', { state: { 
-        myTeam: selectedTeam, 
-        opponentTeam: leaderData.pokemon,
-        leaderName: leaderData.name
-      }});
+      // 스토어에 팀 데이터 저장
+      setBattleTeams(selectedTeam, leaderData.pokemon, leaderData.name);
+      // state 없이 배틀 페이지로 이동
+      navigate('/battle');
     }
   };
 
