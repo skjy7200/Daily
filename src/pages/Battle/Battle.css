@@ -169,7 +169,7 @@
 
 
   /* 상대 체력바: 모바일에서는 더 작게, 위치 조정 */
-
+ 
   .status-bar {
 
     width: 160px;
@@ -486,4 +486,73 @@
 
 .move-details span {
   font-weight: bold;
+}
+
+/* New: Super Effective / Not Effective Popups */
+.super-effective-popup, .not-effective-popup {
+  position: absolute;
+  font-family: 'DNFBitBitv2', sans-serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-shadow: 2px 2px 3px rgba(0,0,0,0.7);
+  white-space: nowrap;
+  pointer-events: none; /* Prevent blocking clicks */
+  z-index: 20;
+  animation: popup-fade-up 1s forwards;
+}
+
+.super-effective-popup {
+  color: #ffed80; /* Bright yellow/gold */
+}
+
+.not-effective-popup {
+  color: #a8a8a8; /* Greyish */
+  font-size: 1.2rem;
+}
+
+.popup-opponent {
+  top: 30%;
+  right: 25%;
+  transform: translateX(-50%);
+}
+
+.popup-player {
+  bottom: 25%;
+  left: 25%;
+  transform: translateX(-50%);
+}
+
+@keyframes popup-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(1.2);
+  }
+}
+
+@media (max-width: 600px) {
+  .super-effective-popup, .not-effective-popup {
+    font-size: 1.2rem;
+  }
+
+  .popup-opponent {
+    top: 25%;
+    right: 15%;
+  }
+
+  .popup-player {
+    bottom: 20%;
+    left: 15%;
+  }
 }

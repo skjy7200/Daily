@@ -18,6 +18,8 @@ function Battle() {
   
   const [myAnim, setMyAnim] = useState('');
   const [oppAnim, setOppAnim] = useState('');
+  const [superEffectivePop, setSuperEffectivePop] = useState(null); // 'player' or 'opponent'
+  const [notEffectivePop, setNotEffectivePop] = useState(null); // 'player' or 'opponent'
 
   // 스토어 데이터로 컴포넌트 내부 상태 초기화
   useEffect(() => {
@@ -42,6 +44,13 @@ function Battle() {
     "grass": "#7AC74C", "ice": "#96D9D6", "fighting": "#C22E28", "poison": "#A33EA1",
     "ground": "#E2BF65", "flying": "#A98FF3", "psychic": "#F95587", "bug": "#A6B91A",
     "rock": "#B6A136", "ghost": "#735797", "dragon": "#6F35FC", "steel": "#B7B7CE", "fairy": "#D685AD"
+  };
+
+  const typeMap = {
+    "normal": "노말", "fire": "불꽃", "water": "물", "electric": "전기",
+    "grass": "풀", "ice": "얼음", "fighting": "격투", "poison": "독",
+    "ground": "땅", "flying": "비행", "psychic": "에스퍼", "bug": "벌레",
+    "rock": "바위", "ghost": "고스트", "dragon": "드래곤", "steel": "강철", "fairy": "페어리"
   };
 
   // HP 퍼센트에 따른 색상 반환
@@ -151,8 +160,15 @@ function Battle() {
       await new Promise(resolve => setTimeout(resolve, 500));
       setMyAnim(''); setOppAnim('');
 
-      if (multiplier > 1) addLog("효과가 굉장했다!");
-      else if (multiplier > 0 && multiplier < 1) addLog("효과가 별로인 듯하다...");
+      if (multiplier > 1) {
+        addLog("효과가 굉장했다!");
+        if (isPlayerAttacking) setSuperEffectivePop('opponent'); else setSuperEffectivePop('player');
+        setTimeout(() => { setSuperEffectivePop(null); setNotEffectivePop(null); }, 1000);
+      } else if (multiplier > 0 && multiplier < 1) {
+        addLog("효과가 별로인 듯하다...");
+        if (isPlayerAttacking) setNotEffectivePop('opponent'); else setNotEffectivePop('player');
+        setTimeout(() => { setSuperEffectivePop(null); setNotEffectivePop(null); }, 1000);
+      }
       await new Promise(resolve => setTimeout(resolve, 500));
     } else {
       updatedDefender = { ...defender };
@@ -237,6 +253,9 @@ function Battle() {
           <img src={oppPokemon.image} alt={oppPokemon.name} className={`pokemon-sprite ${oppAnim ? `anim-${oppAnim}` : ''}`} />
         </div>
 
+        {superEffectivePop === 'opponent' && <div className="super-effective-popup popup-opponent">효과가 굉장했다!</div>}
+        {notEffectivePop === 'opponent' && <div className="not-effective-popup popup-opponent">효과가 별로인 듯하다...</div>}
+
         {/* 아군 체력바 (HUD) */}
         <div className="status-bar player">
           <div className="status-info">
@@ -259,35 +278,36 @@ function Battle() {
         <div className="pokemon-area player">
           <img src={myPokemon.image_back || myPokemon.image} alt={myPokemon.name} className={`pokemon-sprite ${myAnim ? `anim-${myAnim}` : ''}`} />
         </div>
+
+        {superEffectivePop === 'player' && <div className="super-effective-popup popup-player">효과가 굉장했다!</div>}
+        {notEffectivePop === 'player' && <div className="not-effective-popup popup-player">효과가 별로인 듯하다...</div>}
       </div>
       <div className="battle-ui">
         <div className="move-list">
           {myPokemon.moves.map((move) => (
-            <button 
-              key={move.name} 
-              className="move-button" 
-              onMouseEnter={() => setHoveredMove(move)}
-              onMouseLeave={() => setHoveredMove(null)}
-              onClick={() => handleMoveSelection(move)} 
-              disabled={isProcessing || myPokemon.currentHp === 0}
-              style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
-            >
-              {move.nameKo}
-              <span className="move-type" style={{ color: typeColors[move.type] }}>{move.type}</span>
-            </button>
-          ))}
-        </div>
-        <div className="battle-log">
-          {hoveredMove ? (
-            <div className="move-details">
-              <h3>{hoveredMove.nameKo}</h3>
-              <p>타입: <span style={{color: typeColors[hoveredMove.type]}}>{hoveredMove.type}</span></p>
-              <p>위력: {hoveredMove.power || '—'}</p>
-              <p>명중률: {hoveredMove.accuracy || '—'}</p>
-              <p>분류: {hoveredMove.damageClass === 'physical' ? '물리' : '특수'}</p>
-            </div>
-          ) : (
-            logs.map((log, i) => (
+                        <button
+                          key={move.name}
+                          className="move-button"
+                          onMouseEnter={() => setHoveredMove(move)}
+                          onMouseLeave={() => setHoveredMove(null)}
+                          onClick={() => handleMoveSelection(move)}
+                          disabled={isProcessing || myPokemon.currentHp === 0}
+                          style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
+                        >
+                          {move.nameKo}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="battle-log">
+                      {hoveredMove ? (
+                        <div className="move-details">
+                          <h3>{hoveredMove.nameKo}</h3>
+                          <p>타입: <span style={{color: typeColors[hoveredMove.type]}}>{typeMap[hoveredMove.type]}</span></p>
+                          <p>위력: {hoveredMove.power || '—'}</p>
+                          <p>명중률: {hoveredMove.accuracy || '—'}</p>
+                          <p>분류: {hoveredMove.damageClass === 'physical' ? '물리' : '특수'}</p>
+                        </div>
+                      ) : (            logs.map((log, i) => (
               <p key={i} className={getLogClass(log)}>{log}</p>
             ))
           )}
