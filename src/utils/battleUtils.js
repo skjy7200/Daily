@@ -7,8 +7,18 @@ const STAGE_MULTIPLIERS = {
   '1': 3 / 2, '2': 4 / 2, '3': 5 / 2, '4': 6 / 2, '5': 7 / 2, '6': 8 / 2,
 };
 
+const ACCURACY_EVASION_MULTIPLIERS = {
+  '-6': 3 / 9, '-5': 3 / 8, '-4': 3 / 7, '-3': 3 / 6, '-2': 3 / 5, '-1': 3 / 4,
+  '0': 3 / 3,
+  '1': 4 / 3, '2': 5 / 3, '3': 6 / 3, '4': 7 / 3, '5': 8 / 3, '6': 9 / 3,
+};
+
 export const getStatMultiplier = (stage) => {
   return STAGE_MULTIPLIERS[stage] || 1;
+};
+
+export const getAccuracyMultiplier = (stage) => {
+  return ACCURACY_EVASION_MULTIPLIERS[stage] || 1;
 };
 
 export const calculateDamage = (attacker, defender, move) => {
@@ -49,6 +59,20 @@ export const calculateDamage = (attacker, defender, move) => {
   const finalDamage = Math.floor(baseDamage * multiplier * stab * (0.85 + Math.random() * 0.15));
   
   return { damage: finalDamage, multiplier };
+};
+
+export const checkHit = (attacker, defender, move) => {
+  if (!move.accuracy || move.accuracy === true) return true; // 필중기 처리
+
+  const accStage = attacker.statStages.accuracy || 0;
+  const evaStage = defender.statStages.evasion || 0;
+  
+  // 최종 명중률 랭크 = 공격자 명중률 랭크 - 방어자 회피율 랭크 (-6 ~ +6 제한)
+  const combinedStage = Math.max(-6, Math.min(6, accStage - evaStage));
+  const multiplier = getAccuracyMultiplier(combinedStage);
+  
+  const finalAccuracy = move.accuracy * multiplier;
+  return Math.random() * 100 <= finalAccuracy;
 };
 
 export const canAttack = (pokemon, addLog) => {

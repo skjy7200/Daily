@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useBattleStore from '../../store/battleStore';
-import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects } from '../../utils/battleUtils';
+import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects, checkHit } from '../../utils/battleUtils';
 import './Battle.css';
 
 function Battle() {
@@ -29,8 +29,8 @@ function Battle() {
       return;
     }
 
-    setBattleTeam(userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0 } })));
-    setBattleOpponent(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0 } })));
+    setBattleTeam(userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } })));
+    setBattleOpponent(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } })));
     setLogs([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
   }, [userTeam, opponentTeam, leaderName, navigate]);
 
@@ -136,9 +136,9 @@ function Battle() {
     await new Promise(resolve => setTimeout(resolve, 400));
     setMyAnim(''); setOppAnim('');
 
-    // 명중률 체크
-    if (move.accuracy && Math.random() * 100 > move.accuracy) {
-      addLog('그러나 기술은 빗나갔다!');
+    // 명중률 체크 (랭크 보정 반영)
+    if (!checkHit(attacker, defender, move)) {
+      addLog(`${defender.name}은(는) 공격을 피했다!`);
       await new Promise(resolve => setTimeout(resolve, 500));
       return;
     }
