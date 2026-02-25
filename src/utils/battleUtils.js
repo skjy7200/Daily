@@ -147,9 +147,12 @@ export const applyMoveEffects = async (move, attacker, defender, setAttackerStat
   // 1. 능력치 변화 효과 처리
   if (move.effect.stat_changes) {
     for (const sc of move.effect.stat_changes) {
-      const isSelf = sc.change > 0;
-      const target = isSelf ? attacker : defender;
-      const setTargetState = isSelf ? setAttackerState : setDefenderState;
+      // PokeAPI 카테고리 기반 타겟 판정
+      // damage+raise, net-good-stats 등은 사용자(attacker)에게 적용
+      // damage+lower 등은 상대(defender)에게 적용
+      const isSelfEffect = move.category.includes('raise') || move.category.includes('net-good-stats');
+      const target = isSelfEffect ? attacker : defender;
+      const setTargetState = isSelfEffect ? setAttackerState : setDefenderState;
       const targetName = target.name;
 
       setTargetState(prev => {
@@ -171,10 +174,16 @@ export const applyMoveEffects = async (move, attacker, defender, setAttackerStat
         updatedPokemon.statStages[sc.stat] = newStage;
 
         // 로그 메시지 생성
+        const statNamesKo = {
+            attack: '공격', defense: '방어', spAttack: '특수공격', 
+            spDefense: '특수방어', speed: '스피드', accuracy: '명중률', evasion: '회피율'
+        };
+        const statNameKo = statNamesKo[sc.stat] || sc.stat;
+
         if (newStage > currentStage) {
-          addLog(`${targetName}의 ${sc.stat}이(가) 올랐다!`);
+          addLog(`${targetName}의 ${statNameKo}이(가) 올랐다!`);
         } else if (newStage < currentStage) {
-          addLog(`${targetName}의 ${sc.stat}이(가) 떨어졌다!`);
+          addLog(`${targetName}의 ${statNameKo}이(가) 떨어졌다!`);
         }
         
         newState[pokeIndex] = updatedPokemon;

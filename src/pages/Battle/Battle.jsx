@@ -91,21 +91,21 @@ function Battle() {
     const myFirst = mySpeed >= oppSpeed;
 
     if (myFirst) {
-      await executeTurn(myPokemon, oppPokemon, move, true);
-      if (oppPokemon.currentHp > 0) {
+      const oppHp = await executeTurn(myPokemon, oppPokemon, move, true);
+      if (oppHp > 0) {
         const oppMove = oppPokemon.moves[Math.floor(Math.random() * oppPokemon.moves.length)];
         await executeTurn(oppPokemon, myPokemon, oppMove, false);
       }
     } else {
       const oppMove = oppPokemon.moves[Math.floor(Math.random() * oppPokemon.moves.length)];
-      await executeTurn(oppPokemon, myPokemon, oppMove, false);
-      if (myPokemon.currentHp > 0) await executeTurn(myPokemon, oppPokemon, move, true);
+      const myHp = await executeTurn(oppPokemon, myPokemon, oppMove, false);
+      if (myHp > 0) {
+        await executeTurn(myPokemon, oppPokemon, move, true);
+      }
     }
     
     // Process status effects after both turns
-    if (myPokemon.currentHp > 0 || oppPokemon.currentHp > 0) {
-      await processStatusEffects();
-    }
+    await processStatusEffects();
 
     setIsProcessing(false);
   };
@@ -196,6 +196,8 @@ function Battle() {
       });
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
+
+    return updatedDefender.currentHp;
   };
   
   useEffect(() => {

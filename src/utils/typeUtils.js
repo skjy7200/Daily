@@ -24,6 +24,7 @@ const TYPE_CHART = {
   ghost: { normal: 0, psychic: 2, ghost: 2, dark: 0.5 },
   dragon: { dragon: 2, steel: 0.5, fairy: 0 },
   steel: { fire: 0.5, water: 0.5, electric: 0.5, ice: 2, rock: 2, steel: 0.5, fairy: 2 },
+  dark: { fighting: 0.5, psychic: 2, ghost: 2, dark: 0.5, fairy: 0.5 },
   fairy: { fire: 0.5, fighting: 2, poison: 0.5, dragon: 2, dark: 2, steel: 0.5 },
 };
 
