@@ -98,5 +98,19 @@ export const fetchMoveDetailsForPokemon = async (moves) => {
   const targetMoves = moves.slice(0, 4);
   
   const movePromises = targetMoves.map(move => getMoveDetails(move.url));
-  return await Promise.all(movePromises);
+  const moveDetails = await Promise.all(movePromises);
+
+  // 기술이 4개보다 적을 경우 '몸통박치기'로 채움 (방어 로직)
+  while (moveDetails.length < 4) {
+    moveDetails.push({ 
+      name: 'tackle',
+      nameKo: '몸통박치기', 
+      power: 40, 
+      accuracy: 100, 
+      type: 'normal', 
+      damageClass: 'physical' 
+    });
+  }
+  
+  return moveDetails;
 };
