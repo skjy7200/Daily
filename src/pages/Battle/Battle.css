@@ -22,9 +22,9 @@
 /* --- HUD (Health Bars) --- */
 .status-bar {
   background: #f8f8f8;
-  padding: 10px 15px;
+  padding: 12px 20px;
   border: 4px solid #444;
-  width: 240px;
+  width: 300px;
   box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
   position: absolute;
   z-index: 10;
@@ -355,14 +355,14 @@
 }
 
 .battle-ui {
-  height: 180px;
+  height: 220px;
   display: flex;
   gap: 15px;
   margin-top: 15px;
   background: #f8f8f8;
   border: 4px solid #3b3b3b;
   border-radius: 8px;
-  padding: 10px;
+  padding: 15px;
 }
 
 .move-list {
