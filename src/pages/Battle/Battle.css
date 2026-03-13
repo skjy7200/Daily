@@ -449,6 +449,20 @@
 .anim-damage { animation: damage-shake 0.4s ease-in-out; }
 .anim-faint { animation: faint-anim 0.8s forwards; }
 
+/* Screen Shake Effect */
+@keyframes screen-shake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+.screen-shake {
+  animation: screen-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  /* 흔들릴 때 배경 너머가 보이지 않도록 살짝 확장 */
+  scale: 1.02;
+}
+
 .status-text {
   font-size: 0.75rem;
   font-weight: bold;

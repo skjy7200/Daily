@@ -15,6 +15,7 @@ function Battle() {
   const [logs, setLogs] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [hoveredMove, setHoveredMove] = useState(null);
+  const [screenShake, setScreenShake] = useState(false);
   
   const [myAnim, setMyAnim] = useState('');
   const [oppAnim, setOppAnim] = useState('');
@@ -151,6 +152,10 @@ function Battle() {
       
       if (isPlayerAttacking) setOppAnim('damage'); else setMyAnim('damage');
       
+      // 화면 흔들림 효과 트리거
+      setScreenShake(true);
+      setTimeout(() => setScreenShake(false), 500);
+      
       setDefenderState(prev => {
         const n = [...prev];
         const idx = n.findIndex(p => p.id === defender.id);
@@ -231,7 +236,7 @@ function Battle() {
 
   return (
     <div className="battle-container">
-      <div className="battle-field">
+      <div className={`battle-field ${screenShake ? 'screen-shake' : ''}`}>
         {/* 상대 체력바 (HUD) */}
         <div className="status-bar opponent">
           <div className="status-info">
