@@ -37,6 +37,39 @@
   top: 20px;
   left: 20px;
   border-radius: 0 15px 0 15px;
+  transition: opacity 0.5s ease;
+}
+
+.status-bar.opponent.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --- 트레이너 스프라이트 --- */
+.trainer-sprite-battle {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  z-index: 5;
+}
+
+/* 등장 애니메이션 */
+@keyframes trainer-enter {
+  0% { transform: translateX(300px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pokemon-appear {
+  0% { transform: scale(0); opacity: 0; filter: brightness(5); }
+  100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+}
+
+.anim-trainer-enter {
+  animation: trainer-enter 0.8s ease-out forwards;
+}
+
+.anim-pokemon-appear {
+  animation: pokemon-appear 0.5s ease-out forwards;
 }
 
 /* 아군 체력바: 우측 하단 */
@@ -301,15 +334,11 @@
 
 
   .battle-log {
-
     border-left: none;
-
     border-top: 3px solid #3b3b3b;
-
     padding-top: 10px;
-
-    max-height: 80px;
-
+    height: 120px; /* 고정 높이 확보 */
+    max-height: 150px;
   }
 
 }

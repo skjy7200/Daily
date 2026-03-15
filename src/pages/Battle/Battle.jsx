@@ -6,7 +6,7 @@ import './Battle.css';
 
 function Battle() {
   const navigate = useNavigate();
-  const { userTeam, opponentTeam, leaderName, setBattleOutcome } = useBattleStore();
+  const { userTeam, opponentTeam, leaderName, leaderSprite, setBattleOutcome } = useBattleStore();
 
   const [myCurrentIdx, setMyCurrentIdx] = useState(0);
   const [oppCurrentIdx, setOppCurrentIdx] = useState(0);
@@ -14,6 +14,7 @@ function Battle() {
   const [battleOpponent, setBattleOpponent] = useState([]);
   const [logs, setLogs] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isIntro, setIsIntro] = useState(true); // 관장 등장 인트로 상태
   const [hoveredMove, setHoveredMove] = useState(null);
   const [screenShake, setScreenShake] = useState(false);
   
@@ -33,6 +34,14 @@ function Battle() {
     setBattleTeam(userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } })));
     setBattleOpponent(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } })));
     setLogs([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
+
+    // 인트로 타이머 (2.5초 후 포켓몬 등장)
+    const introTimer = setTimeout(() => {
+      setIsIntro(false);
+      addLog(`${leaderName}은(는) ${opponentTeam[0].name}을(를) 내보냈다!`);
+    }, 2500);
+
+    return () => clearTimeout(introTimer);
   }, [userTeam, opponentTeam, leaderName, navigate]);
 
 
@@ -238,7 +247,7 @@ function Battle() {
     <div className="battle-container">
       <div className={`battle-field ${screenShake ? 'screen-shake' : ''}`}>
         {/* 상대 체력바 (HUD) */}
-        <div className="status-bar opponent">
+        <div className={`status-bar opponent ${isIntro ? 'hidden' : ''}`}>
           <div className="status-info">
             <span className="name">{oppPokemon.name}</span>
             {oppPokemon.status && <span className={`status-text ${oppPokemon.status}`}>{oppPokemon.status.toUpperCase()}</span>}
@@ -257,7 +266,19 @@ function Battle() {
         </div>
 
         <div className="pokemon-area opponent">
-          <img src={oppPokemon.image} alt={oppPokemon.name} className={`pokemon-sprite ${oppAnim ? `anim-${oppAnim}` : ''}`} />
+          {isIntro ? (
+            <img 
+              src={leaderSprite} 
+              alt={leaderName} 
+              className="trainer-sprite-battle anim-trainer-enter" 
+            />
+          ) : (
+            <img 
+              src={oppPokemon.image} 
+              alt={oppPokemon.name} 
+              className={`pokemon-sprite ${oppAnim ? `anim-${oppAnim}` : ''} anim-pokemon-appear`} 
+            />
+          )}
         </div>
 
         {superEffectivePop === 'opponent' && <div className="super-effective-popup popup-opponent">효과가 굉장했다!</div>}

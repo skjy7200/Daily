@@ -59,7 +59,14 @@ function Result() {
         
         {win && (
           <div className="badge-container">
-            <img src={`/badges/${leaderName}.png`} alt={`${leaderName} 배지`} className="badge-image" />
+            <img 
+              src={`/badges/${leaderName}.png`} 
+              alt={`${leaderName} 배지`} 
+              className="badge-image" 
+              onError={(e) => {
+                e.target.style.display = 'none'; // 이미지가 없으면 숨김
+              }}
+            />
             <p className="badge-message">{`${leaderName} 배지를 획득했다!`}</p>
           </div>
         )}

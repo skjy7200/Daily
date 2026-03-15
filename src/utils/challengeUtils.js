@@ -17,6 +17,17 @@ const GYM_LEADER_TEAMS = {
   "비주기": [31, 34, 112] // 니드퀸, 니드킹, 코뿌리
 };
 
+const GYM_LEADER_SPRITES = {
+  "웅": "https://play.pokemonshowdown.com/sprites/trainers/brock.png",
+  "이슬": "https://play.pokemonshowdown.com/sprites/trainers/misty.png",
+  "마티스": "https://play.pokemonshowdown.com/sprites/trainers/ltsurge.png",
+  "민화": "https://play.pokemonshowdown.com/sprites/trainers/erika.png",
+  "독수": "https://play.pokemonshowdown.com/sprites/trainers/koga.png",
+  "초련": "https://play.pokemonshowdown.com/sprites/trainers/sabrina.png",
+  "강연": "https://play.pokemonshowdown.com/sprites/trainers/blaine.png",
+  "비주기": "https://play.pokemonshowdown.com/sprites/trainers/giovanni.png"
+};
+
 /**
  * [DevMode] 가상 날짜를 반환합니다.
  * localStorage의 'debug_day_offset' 값을 읽어 현재 시간에 더합니다.
@@ -33,7 +44,7 @@ const getVirtualDate = () => {
 /**
  * 오늘의 챌린지를 생성합니다.
  * KST 날짜를 기반으로 시드를 생성하여 모든 유저에게 동일한 결과를 제공합니다.
- * @returns {{leader: string, leaderPokemon: Array, rentalPokemon: Array}} 오늘의 챌린지 상세 정보.
+ * @returns {{leader: string, leaderSprite: string, leaderPokemon: Array, rentalPokemon: Array}} 오늘의 챌린지 상세 정보.
  */
 export const generateDailyChallenge = () => {
   const now = getVirtualDate(); // Use Virtual Date
@@ -60,6 +71,7 @@ export const generateDailyChallenge = () => {
   // 체육관 관장 선택
   const leaderIndex = Math.floor(random() * GYM_LEADERS.length);
   const leader = GYM_LEADERS[leaderIndex];
+  const leaderSprite = GYM_LEADER_SPRITES[leader];
 
   // 관장 전용 포켓몬 가져오기
   const leaderPokemonIds = GYM_LEADER_TEAMS[leader];
@@ -77,7 +89,7 @@ export const generateDailyChallenge = () => {
     rentalPool.splice(index, 1);
   }
 
-  return { leader, leaderPokemon, rentalPokemon };
+  return { leader, leaderSprite, leaderPokemon, rentalPokemon };
 };
 
 /**

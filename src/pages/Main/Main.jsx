@@ -51,7 +51,7 @@ function Main() {
     return <div className="main-container">오늘의 챌린지를 불러오는 중...</div>;
   }
 
-  const { leader, leaderPokemon } = dailyChallenge;
+  const { leader, leaderSprite, leaderPokemon } = dailyChallenge;
 
   return (
     <div className="main-container">
@@ -63,7 +63,10 @@ function Main() {
       </div>
 
       <div className="gym-leader-section">
-        <h2>오늘의 관장: {leader}</h2>
+        <div className="leader-info-header">
+          <h2>오늘의 관장: {leader}</h2>
+          <img src={leaderSprite} alt={leader} className="leader-sprite-main" />
+        </div>
         <div className="leader-pokemon-list">
           {leaderPokemon.map((p, index) => (
             <div key={index} className="pokemon-card">

@@ -33,7 +33,7 @@ function TeamSelection() {
   const [selectedTeam, setSelectedTeam] = useState([]);
 
   useEffect(() => {
-    const { rentalPokemon, leader, leaderPokemon } = generateDailyChallenge();
+    const { rentalPokemon, leader, leaderSprite, leaderPokemon } = generateDailyChallenge();
 
     const calculateStats = (baseStats) => {
       const level = 50;
@@ -60,7 +60,7 @@ function TeamSelection() {
     });
 
     setRentalPokemon(processPokemon(rentalPokemon));
-    setLeaderData({ name: leader, pokemon: processPokemon(leaderPokemon) });
+    setLeaderData({ name: leader, sprite: leaderSprite, pokemon: processPokemon(leaderPokemon) });
   }, []);
 
   const toggleSelect = (pokemon) => {
@@ -76,7 +76,7 @@ function TeamSelection() {
   const startBattle = () => {
     if (selectedTeam.length === 3 && leaderData) {
       // 스토어에 팀 데이터 저장
-      setBattleTeams(selectedTeam, leaderData.pokemon, leaderData.name);
+      setBattleTeams(selectedTeam, leaderData.pokemon, leaderData.name, leaderData.sprite);
       // state 없이 배틀 페이지로 이동
       navigate('/battle');
     }

@@ -784,6 +784,36 @@
         "damageClass": "physical",
         "category": "damage",
         "effect": null
+      },
+      {
+        "name": "tackle",
+        "nameKo": "몸통박치기",
+        "type": "normal",
+        "power": 40,
+        "accuracy": 100,
+        "pp": 35,
+        "damageClass": "physical",
+        "category": "damage",
+        "effect": null
+      },
+      {
+        "name": "harden",
+        "nameKo": "단단해지기",
+        "type": "normal",
+        "power": 0,
+        "accuracy": null,
+        "pp": 30,
+        "damageClass": "status",
+        "category": "net-good-stats",
+        "effect": {
+          "stat_changes": [
+            {
+              "stat": "defense",
+              "change": 1
+            }
+          ],
+          "chance": 1
+        }
       }
     ],
     "maxHp": 50
@@ -932,6 +962,17 @@
           ],
           "chance": 1
         }
+      },
+      {
+        "name": "tackle",
+        "nameKo": "몸통박치기",
+        "type": "normal",
+        "power": 40,
+        "accuracy": 100,
+        "pp": 35,
+        "damageClass": "physical",
+        "category": "damage",
+        "effect": null
       }
     ],
     "maxHp": 40
@@ -984,6 +1025,36 @@
             {
               "stat": "speed",
               "change": -1
+            }
+          ],
+          "chance": 1
+        }
+      },
+      {
+        "name": "tackle",
+        "nameKo": "몸통박치기",
+        "type": "normal",
+        "power": 40,
+        "accuracy": 100,
+        "pp": 35,
+        "damageClass": "physical",
+        "category": "damage",
+        "effect": null
+      },
+      {
+        "name": "harden",
+        "nameKo": "단단해지기",
+        "type": "normal",
+        "power": 0,
+        "accuracy": null,
+        "pp": 30,
+        "damageClass": "status",
+        "category": "net-good-stats",
+        "effect": {
+          "stat_changes": [
+            {
+              "stat": "defense",
+              "change": 1
             }
           ],
           "chance": 1
@@ -9820,7 +9891,60 @@
       "spDefense": 48,
       "speed": 48
     },
-    "moves": [],
+    "moves": [
+      {
+        "name": "tackle",
+        "nameKo": "몸통박치기",
+        "type": "normal",
+        "power": 40,
+        "accuracy": 100,
+        "pp": 35,
+        "damageClass": "physical",
+        "category": "damage",
+        "effect": null
+      },
+      {
+        "name": "harden",
+        "nameKo": "단단해지기",
+        "type": "normal",
+        "power": 0,
+        "accuracy": null,
+        "pp": 30,
+        "damageClass": "status",
+        "category": "net-good-stats",
+        "effect": {
+          "stat_changes": [
+            {
+              "stat": "defense",
+              "change": 1
+            }
+          ],
+          "chance": 1
+        }
+      },
+      {
+        "name": "flail",
+        "nameKo": "바둥바둥",
+        "type": "normal",
+        "power": 40,
+        "accuracy": 100,
+        "pp": 15,
+        "damageClass": "physical",
+        "category": "damage",
+        "effect": null
+      },
+      {
+        "name": "struggle",
+        "nameKo": "발버둥",
+        "type": "normal",
+        "power": 40,
+        "accuracy": 100,
+        "pp": 35,
+        "damageClass": "physical",
+        "category": "damage",
+        "effect": null
+      }
+    ],
     "maxHp": 48
   },
   {

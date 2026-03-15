@@ -4,7 +4,7 @@
   border-radius: 15px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   max-width: 900px;
-  width: 90%;
+       width: 90%;
   margin: 20px auto;
 }
 
@@ -25,9 +25,24 @@ h1 {
   margin-bottom: 40px;
 }
 
+.leader-info-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.leader-sprite-main {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+}
+
 .gym-leader-section h2 {
   color: #34495e;
-  margin-bottom: 25px;
+  margin: 0;
   font-size: 2em;
 }
 
