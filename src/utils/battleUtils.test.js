@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { calculateDamage, getStatMultiplier } from './battleUtils';
+import { calculateDamage } from './battleUtils';
 
 describe('calculateDamage for standard moves', () => {
 
@@ -49,9 +49,6 @@ describe('calculateDamage for standard moves', () => {
     const defender = venusaur;
     const move = flamethrower;
     
-    const baseDmg = 45;
-    const expectedDamage = Math.floor(baseDmg * 2 * 1.5 * 0.925); // 124
-
     const { damage } = calculateDamage(attacker, defender, move);
     expect(damage).toBe(124);
   });
@@ -60,9 +57,6 @@ describe('calculateDamage for standard moves', () => {
     const attacker = charizard;
     const defender = blastoise;
     const move = flamethrower;
-
-    const baseDmg = 43;
-    const expectedDamage = Math.floor(baseDmg * 0.5 * 1.5 * 0.925); // 29
 
     const { damage } = calculateDamage(attacker, defender, move);
     expect(damage).toBe(29);
@@ -73,10 +67,6 @@ describe('calculateDamage for standard moves', () => {
     const defender = venusaur;
     const move = crossChop;
     
-    const burnedAttackStat = Math.floor(charizard.stats.attack / 2); // 84 / 2 = 42
-    const baseDmg = 24;
-    const expectedDamage = Math.floor(baseDmg * 0.5 * 1 * 0.925); // 11
-    
     const { damage } = calculateDamage(attacker, defender, move);
     expect(damage).toBe(11);
   });
@@ -84,13 +74,6 @@ describe('calculateDamage for standard moves', () => {
   it('applies stat stages correctly to damage calculation', () => {
     const boostedAttacker = { ...charizard, statStages: { ...charizard.statStages, spAttack: 2 } }; // spAttack +2 stages (2x)
     const debuffedDefender = { ...venusaur, statStages: { ...venusaur.statStages, spDefense: -1 } }; // spDefense -1 stage (0.66x)
-
-    const attackerSpAttack = Math.floor(boostedAttacker.stats.spAttack * getStatMultiplier(2)); // 109 * 2 = 218
-    const defenderSpDefense = Math.floor(debuffedDefender.stats.spDefense * getStatMultiplier(-1)); // 100 * (2/3) = 66
-    
-    // 계산식: floor((((2 * 50 / 5 + 2) * 90 * (218 / 66)) / 50) + 2) = floor(132.8) = 132
-    const baseDmg = 132;
-    const expectedDamage = Math.floor(baseDmg * 2 * 1.5 * 0.925); // 366
 
     const { damage } = calculateDamage(boostedAttacker, debuffedDefender, flamethrower);
     expect(damage).toBe(366);

@@ -107,7 +107,7 @@ async function fetchPokemonData() {
               effect: Object.keys(moveEffect).length > 0 ? moveEffect : null,
             });
           }
-        } catch (e) {
+        } catch {
           console.error(`Failed to fetch move ${url}`);
         }
       }

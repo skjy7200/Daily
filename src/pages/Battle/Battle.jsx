@@ -190,22 +190,17 @@ function Battle() {
 
     // 모든 부가 효과 (상태이상, 능력치 변화 등) 처리
     await applyMoveEffects(move, attacker, updatedDefender, setAttackerState, setDefenderState, addLog);
-        
-    setDefenderState(prev => {
-        const n = [...prev];
-        const idx = n.findIndex(p => p.id === updatedDefender.id);
-        n[idx] = updatedDefender;
-        return n;
-    });
 
     if (updatedDefender.currentHp === 0) {
       if (isPlayerAttacking) setOppAnim('faint'); else setMyAnim('faint');
       addLog(`${updatedDefender.name}은(는) 쓰러졌다!`);
-      updatedDefender.status = null;
+      
       setDefenderState(prev => {
         const n = [...prev];
         const idx = n.findIndex(p => p.id === updatedDefender.id);
-        n[idx] = updatedDefender;
+        if (idx !== -1) {
+          n[idx] = { ...n[idx], status: null };
+        }
         return n;
       });
       await new Promise(resolve => setTimeout(resolve, 1000));
