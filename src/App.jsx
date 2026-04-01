@@ -15,7 +15,7 @@ function App() {
         <Route path="/battle" element={<Battle />} />
         <Route path="/result" element={<Result />} />
       </Routes>
-      {import.meta.env.DEV && <DevTools />}
+      {import.meta.env.MODE === 'development' && <DevTools />}
     </div>
   );
 }
