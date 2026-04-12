@@ -160,21 +160,20 @@ export const applyMoveEffects = async (move, attacker, defender, setAttackerStat
 
         const updatedPokemon = { ...newState[pokeIndex] };
         const currentStage = updatedPokemon.statStages[sc.stat] || 0;
-        
         const newStage = Math.max(-6, Math.min(6, currentStage + sc.change));
-        
-        if (newStage === currentStage) {
-            addLog(`${updatedPokemon.name}의 ${sc.stat}은(는) 더 이상 변하지 않는다!`);
-            return newState;
-        }
-
-        updatedPokemon.statStages[sc.stat] = newStage;
 
         const statNamesKo = {
             attack: '공격', defense: '방어', spAttack: '특수공격', 
             spDefense: '특수방어', speed: '스피드', accuracy: '명중률', evasion: '회피율'
         };
         const statNameKo = statNamesKo[sc.stat] || sc.stat;
+
+        if (newStage === currentStage) {
+            addLog(`${updatedPokemon.name}의 ${statNameKo}은(는) 더 이상 변하지 않는다!`);
+            return newState;
+        }
+
+        updatedPokemon.statStages[sc.stat] = newStage;
 
         if (newStage > currentStage) {
           addLog(`${updatedPokemon.name}의 ${statNameKo}이(가) 올랐다!`);

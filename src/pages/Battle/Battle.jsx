@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useBattleStore from '../../store/battleStore';
 import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects, checkHit } from '../../utils/battleUtils';
@@ -17,11 +17,22 @@ function Battle() {
   const [isIntro, setIsIntro] = useState(true); // 관장 등장 인트로 상태
   const [hoveredMove, setHoveredMove] = useState(null);
   const [screenShake, setScreenShake] = useState(false);
-  
+
   const [myAnim, setMyAnim] = useState('');
   const [oppAnim, setOppAnim] = useState('');
   const [superEffectivePop, setSuperEffectivePop] = useState(null); // 'player' or 'opponent'
   const [notEffectivePop, setNotEffectivePop] = useState(null); // 'player' or 'opponent'
+
+  const battleTeamRef = useRef([]);
+  const battleOpponentRef = useRef([]);
+
+  useEffect(() => {
+    battleTeamRef.current = battleTeam;
+  }, [battleTeam]);
+
+  useEffect(() => {
+    battleOpponentRef.current = battleOpponent;
+  }, [battleOpponent]);
 
   // 스토어 데이터로 컴포넌트 내부 상태 초기화
   useEffect(() => {
@@ -31,8 +42,11 @@ function Battle() {
       return;
     }
 
-    setBattleTeam(userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } })));
-    setBattleOpponent(opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } })));
+    const initialMyTeam = userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } }));
+    const initialOppTeam = opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } }));
+
+    setBattleTeam(initialMyTeam);
+    setBattleOpponent(initialOppTeam);
     setLogs([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
 
     // 인트로 타이머 (2.5초 후 포켓몬 등장)
@@ -77,9 +91,12 @@ function Battle() {
 
   const processStatusEffects = async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    processEndOfTurnStatus(myPokemon, setBattleTeam, addLog);
+    const currentMyPokemon = battleTeamRef.current[myCurrentIdx];
+    const currentOppPokemon = battleOpponentRef.current[oppCurrentIdx];
+    
+    processEndOfTurnStatus(currentMyPokemon, setBattleTeam, addLog);
     await new Promise(resolve => setTimeout(resolve, 500));
-    processEndOfTurnStatus(oppPokemon, setBattleOpponent, addLog);
+    processEndOfTurnStatus(currentOppPokemon, setBattleOpponent, addLog);
     await new Promise(resolve => setTimeout(resolve, 500));
   };
   
@@ -101,16 +118,18 @@ function Battle() {
     const myFirst = mySpeed >= oppSpeed;
 
     if (myFirst) {
-      const oppHp = await executeTurn(myPokemon, oppPokemon, move, true);
+      const oppHp = await executeTurn(move, true);
       if (oppHp > 0) {
-        const oppMove = oppPokemon.moves[Math.floor(Math.random() * oppPokemon.moves.length)];
-        await executeTurn(oppPokemon, myPokemon, oppMove, false);
+        const currentOppPokemon = battleOpponentRef.current[oppCurrentIdx];
+        const oppMove = currentOppPokemon.moves[Math.floor(Math.random() * currentOppPokemon.moves.length)];
+        await executeTurn(oppMove, false);
       }
     } else {
-      const oppMove = oppPokemon.moves[Math.floor(Math.random() * oppPokemon.moves.length)];
-      const myHp = await executeTurn(oppPokemon, myPokemon, oppMove, false);
+      const currentOppPokemon = battleOpponentRef.current[oppCurrentIdx];
+      const oppMove = currentOppPokemon.moves[Math.floor(Math.random() * currentOppPokemon.moves.length)];
+      const myHp = await executeTurn(oppMove, false);
       if (myHp > 0) {
-        await executeTurn(myPokemon, oppPokemon, move, true);
+        await executeTurn(move, true);
       }
     }
     
@@ -120,8 +139,10 @@ function Battle() {
     setIsProcessing(false);
   };
 
-  const executeTurn = async (attacker, defender, move, isPlayerAttacking) => {
-    
+  const executeTurn = async (move, isPlayerAttacking) => {
+    const attacker = isPlayerAttacking ? battleTeamRef.current[myCurrentIdx] : battleOpponentRef.current[oppCurrentIdx];
+    const defender = isPlayerAttacking ? battleOpponentRef.current[oppCurrentIdx] : battleTeamRef.current[myCurrentIdx];
+
     const setAttackerState = isPlayerAttacking ? setBattleTeam : setBattleOpponent;
     const setDefenderState = isPlayerAttacking ? setBattleOpponent : setBattleTeam;
     const attackerIdx = isPlayerAttacking ? myCurrentIdx : oppCurrentIdx;
@@ -137,7 +158,7 @@ function Battle() {
 
     if (!attackerCanAttack) {
       await new Promise(resolve => setTimeout(resolve, 500));
-      return;
+      return isPlayerAttacking ? battleOpponentRef.current[oppCurrentIdx].currentHp : battleTeamRef.current[myCurrentIdx].currentHp;
     }
 
     addLog(`${attacker.name}의 ${move.nameKo}!`);
@@ -150,7 +171,7 @@ function Battle() {
     if (!checkHit(attacker, defender, move)) {
       addLog(`${defender.name}은(는) 공격을 피했다!`);
       await new Promise(resolve => setTimeout(resolve, 500));
-      return;
+      return defender.currentHp;
     }
 
     let updatedDefender;
