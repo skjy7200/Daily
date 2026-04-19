@@ -2,81 +2,97 @@
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  height: 90vh;
+  font-family: 'Pretendard', sans-serif;
+  user-select: none;
 }
 
 .battle-field {
-  flex: 1;
-  /* GBA 스타일: 위쪽은 배경, 아래쪽은 잔디 느낌 */
-  background: linear-gradient(to bottom, #d0f0c0 0%, #d0f0c0 50%, #7ec850 50%, #7ec850 100%);
   position: relative;
-  border: 6px solid #3b3b3b;
-  border-radius: 4px;
-  image-rendering: pixelated;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: url('../../assets/images/battle-bg.png') no-repeat center center;
+  background-size: cover;
+  border: 4px solid #333;
+  border-radius: 10px 10px 0 0;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-/* --- HUD (Health Bars) --- */
-.status-bar {
-  background: #f8f8f8;
-  padding: 12px 20px;
-  border: 4px solid #444;
-  width: 300px;
-  box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+/* 화면 흔들림 효과 */
+.screen-shake {
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* 포켓몬 영역 */
+.pokemon-area {
   position: absolute;
-  z-index: 10;
+  width: 25%;
+  height: 35%;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
 }
 
-/* 상대 체력바: 좌측 상단 */
-.status-bar.opponent {
-  top: 20px;
-  left: 20px;
-  border-radius: 0 15px 0 15px;
+.pokemon-area.opponent {
+  top: 15%;
+  right: 15%;
+}
+
+.pokemon-area.player {
+  bottom: 10%;
+  left: 15%;
+}
+
+.pokemon-sprite {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  transition: transform 0.3s ease;
+}
+
+.pokemon-area.player .pokemon-sprite {
+  width: 120%;
+}
+
+.trainer-sprite-battle {
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+/* 체력바 HUD */
+.status-bar {
+  position: absolute;
+  width: 240px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border: 3px solid #333;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  z-index: 10;
   transition: opacity 0.5s ease;
 }
 
-.status-bar.opponent.hidden {
+.status-bar.hidden {
   opacity: 0;
-  pointer-events: none;
 }
 
-/* --- 트레이너 스프라이트 --- */
-.trainer-sprite-battle {
-  width: 140px;
-  height: 140px;
-  object-fit: contain;
-  z-index: 5;
+.status-bar.opponent {
+  top: 10%;
+  left: 8%;
+  border-top-right-radius: 0;
 }
 
-/* 등장 애니메이션 */
-@keyframes trainer-enter {
-  0% { transform: translateX(300px); opacity: 0; }
-  100% { transform: translateX(-40px); opacity: 1; }
-}
-
-@keyframes pokemon-appear {
-  0% { transform: scale(0); opacity: 0; filter: brightness(5); }
-  100% { transform: scale(1); opacity: 1; filter: brightness(1); }
-}
-
-.anim-trainer-enter {
-  animation: trainer-enter 0.8s ease-out forwards;
-}
-
-.anim-pokemon-appear {
-  animation: pokemon-appear 0.5s ease-out forwards;
-}
-
-/* 아군 체력바: 우측 하단 */
 .status-bar.player {
-  bottom: 20px;
-  right: 20px;
-  border-radius: 15px 0 15px 0;
+  bottom: 25%;
+  right: 8%;
+  border-bottom-left-radius: 0;
 }
 
 .status-info {
@@ -86,516 +102,305 @@
   margin-bottom: 5px;
 }
 
-.status-bar .name {
+.status-info .name {
   font-weight: bold;
-  font-size: 1rem;
-  color: #333;
+  font-size: 1.1rem;
 }
 
-.status-bar .level {
+.status-info .level {
   font-size: 0.8rem;
-  font-weight: bold;
   color: #666;
 }
 
 .hp-container {
-  height: 12px; /* 살짝 더 두껍게 */
-  background: #555;
+  width: 100%;
+  height: 12px;
+  background: #eee;
   border: 2px solid #333;
   border-radius: 6px;
   overflow: hidden;
   margin-bottom: 4px;
 }
 
-/* --- 포켓몬 영역 (포켓몬 + 발판만) --- */
-.pokemon-area.opponent {
-  position: absolute;
-  top: 35%; /* 지평선 위치 */
-  right: 15%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 2;
-  width: 200px;
-  height: 100px;
-}
-
-.pokemon-area.player {
-  position: absolute;
-  bottom: 15%; 
-  left: 15%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  z-index: 3;
-  width: 250px;
-  height: 120px;
-}
-
-/* 발판 위치 수정 (포켓몬 중앙 밑으로) */
-.pokemon-area.opponent::before {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 180px;
-  height: 50px;
-  background: #5a9e38;
-  border: 3px solid #4a852c;
-  border-radius: 50%;
-  z-index: -1;
-}
-
-.pokemon-area.player::before {
-  content: '';
-  position: absolute;
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 220px;
-  height: 60px;
-  background: #5a9e38;
-  border: 3px solid #4a852c;
-  border-radius: 50%;
-  z-index: -1;
-}
-
-.pokemon-area.opponent .pokemon-sprite {
-  width: 150px; 
-  height: 150px;
-  margin-bottom: 5px;
-}
-
-.pokemon-area.player .pokemon-sprite {
-
-  width: 180px; 
-
-  height: 180px;
-
-  margin-bottom: 5px;
-
-}
-
-
-
-/* --- 모바일 대응 (반응형) --- */
-
-@media (max-width: 600px) {
-
-  .battle-container {
-
-    padding: 10px;
-
-    height: 100vh; /* 꽉 차게 */
-
-  }
-
-
-
-  .battle-field {
-
-    border-width: 4px;
-
-  }
-
-
-
-  /* 상대 체력바: 모바일에서는 더 작게, 위치 조정 */
- 
-  .status-bar {
-
-    width: 160px;
-
-    padding: 6px 10px;
-
-  }
-
-
-
-  .status-bar.opponent {
-
-    top: 10px;
-
-    left: 10px;
-
-  }
-
-
-
-  /* 아군 체력바: 모바일 위치 조정 */
-
-  .status-bar.player {
-
-    bottom: 10px;
-
-    right: 10px;
-
-  }
-
-
-
-  .status-bar .name {
-
-    font-size: 0.8rem;
-
-  }
-
-
-
-  /* 포켓몬 크기 축소 */
-
-  .pokemon-area.opponent {
-
-    top: 35%;
-
-    right: 5%;
-
-    width: 140px;
-
-  }
-
-  .pokemon-area.opponent .pokemon-sprite {
-
-    width: 110px;
-
-    height: 110px;
-
-  }
-
-  .pokemon-area.opponent::before {
-
-    width: 120px;
-
-    height: 35px;
-
-  }
-
-
-
-  .pokemon-area.player {
-
-    bottom: 15%;
-
-    left: 5%;
-
-    width: 160px;
-
-  }
-
-  .pokemon-area.player .pokemon-sprite {
-
-    width: 140px;
-
-    height: 140px;
-
-  }
-
-  .pokemon-area.player::before {
-
-    width: 150px;
-
-    height: 45px;
-
-  }
-
-
-
-  /* 배틀 UI 레이아웃 조정 */
-
-  .battle-ui {
-
-    height: auto;
-
-    flex-direction: column; /* 세로 배치 */
-
-    gap: 10px;
-
-  }
-
-
-
-  .move-list {
-
-    grid-template-columns: 1fr 1fr; /* 2열 유지 */
-
-  }
-
-
-
-  .move-button {
-
-    padding: 8px;
-
-    font-size: 0.8rem;
-
-  }
-
-
-
-  .battle-log {
-    border-left: none;
-    border-top: 3px solid #3b3b3b;
-    padding-top: 10px;
-    height: 120px; /* 고정 높이 확보 */
-    max-height: 150px;
-  }
-
-}
-
-
-
-/* 애니메이션 */
-@keyframes float-idle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-.pokemon-sprite {
-  animation: float-idle 3s ease-in-out infinite;
-}
-
-.status-bar .name {
-  font-family: 'DNFBitBitv2', sans-serif;
-  font-weight: bold;
-  font-size: 0.9rem;
-  display: block;
-}
-
-.hp-container {
-  height: 10px;
-  background: #444;
-  border: 2px solid #3b3b3b;
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
 .hp-bar {
   height: 100%;
-  background: #4cc42a;
-  transition: width 0.5s ease;
+  transition: width 0.5s ease-out, background-color 0.3s;
 }
 
 .hp-text {
-  font-family: monospace;
-  font-size: 0.7rem;
-  text-align: right;
   display: block;
+  text-align: right;
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
+/* 상태이상 뱃지 */
+.status-text {
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-left: 5px;
+}
+.status-text.paralysis { background: #f1c40f; color: #000; }
+.status-text.burn { background: #e67e22; }
+.status-text.poison { background: #9b59b6; }
+.status-text.sleep { background: #95a5a6; }
+.status-text.freeze { background: #3498db; }
+
+/* 배틀 UI 하단 */
 .battle-ui {
-  height: 220px;
-  display: flex;
-  gap: 15px;
-  margin-top: 15px;
-  background: #f8f8f8;
-  border: 4px solid #3b3b3b;
-  border-radius: 8px;
-  padding: 15px;
-}
-
-.move-list {
-  flex: 1.2;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  background: #f0f0f0;
+  border: 4px solid #333;
+  border-top: none;
+  border-radius: 0 0 10px 10px;
+  height: 200px;
 }
 
-.move-button {
-  padding: 10px;
-  font-family: 'DNFBitBitv2', sans-serif;
-  font-size: 0.9rem;
-  border: 3px solid #555;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #fff;
-}
-
-.battle-log {
-  flex: 1;
-  background: #fff;
-  padding: 10px;
-  border-left: 4px solid #3b3b3b;
-  font-size: 0.85rem;
-  overflow-y: auto;
-}
-
-.battle-log p {
-  margin: 0 0 8px 0;
-  font-size: 0.85rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 4px;
-  transition: all 0.3s;
-}
-
-/* 강조 로그: 효과가 굉장했다! (노란색 + 확대) */
-.log-super-effective {
-  color: #f1c40f;
-  font-weight: bold;
-  font-size: 1rem !important;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-  animation: log-pop 0.3s ease-out;
-}
-
-/* 강조 로그: 효과가 별로... (회색) */
-.log-not-effective {
-  color: #95a5a6;
-  font-size: 0.8rem !important;
-}
-
-/* 강조 로그: 쓰러졌다! (빨간색 + 흔들림) */
-.log-faint {
-  color: #e74c3c;
-  font-weight: bold;
-  animation: log-shake 0.5s infinite;
-}
-
-/* 기술 사용 로그: 강조 */
-.log-move-use {
-  color: #3498db;
-  font-style: italic;
-}
-
-@keyframes log-pop {
-  0% { transform: scale(0.8); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes log-shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
-}
-
-/* Animations */
-@keyframes attack-player { 0% { transform: translate(0, 0); } 50% { transform: translate(50px, -50px); } 100% { transform: translate(0, 0); } }
-@keyframes attack-opponent { 0% { transform: translate(0, 0); } 50% { transform: translate(-50px, 50px); } 100% { transform: translate(0, 0); } }
-@keyframes damage-shake { 0%, 100% { transform: translate(0, 0); } 25%, 75% { transform: translate(-10px, 0); filter: brightness(2); } 50% { transform: translate(10px, 0); } }
-@keyframes faint-anim { 100% { transform: translateY(150px); opacity: 0; } }
-
-.anim-attack-player { animation: attack-player 0.4s ease-out; }
-.anim-attack-opponent { animation: attack-opponent 0.4s ease-out; }
-.anim-damage { animation: damage-shake 0.4s ease-in-out; }
-.anim-faint { animation: faint-anim 0.8s forwards; }
-
-/* Screen Shake Effect */
-@keyframes screen-shake {
-  10%, 90% { transform: translate3d(-2px, 0, 0); }
-  20%, 80% { transform: translate3d(4px, 0, 0); }
-  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-  40%, 60% { transform: translate3d(6px, 0, 0); }
-}
-
-.screen-shake {
-  animation: screen-shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-  /* 흔들릴 때 배경 너머가 보이지 않도록 살짝 확장 */
-  scale: 1.02;
-}
-
-.status-text {
-  font-size: 0.75rem;
-  font-weight: bold;
-  padding: 2px 5px;
-  border-radius: 3px;
-  margin-left: 5px;
-  color: white;
-  text-transform: uppercase;
-}
-
-.status-text.poison {
-  background-color: #A33EA1; /* Poison type color */
-}
-
-/* Move Details Box */
-.move-details {
+.battle-controls {
+  padding: 15px;
+  border-right: 4px solid #333;
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+/* 메인 액션 버튼 (공격/교체) */
+.main-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
   height: 100%;
-  padding: 10px;
-  font-family: 'DNFBitBitv2', sans-serif;
+  align-items: center;
 }
 
-.move-details h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.1rem;
-  color: #333;
+.action-button {
+  height: 80px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 3px solid #333;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
-.move-details p {
-  margin: 4px 0;
+.action-button.attack {
+  background: #e74c3c;
+}
+
+.action-button.switch {
+  background: #3498db;
+}
+
+.action-button:hover:not(:disabled) {
+  transform: translateY(-5px);
+  filter: brightness(1.1);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.action-button:disabled {
+  filter: grayscale(1);
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* 서브 메뉴 레이아웃 */
+.move-list-container, .team-switch-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+}
+
+.move-list, .switch-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.back-button {
+  padding: 5px;
+  background: #95a5a6;
+  color: white;
+  border: 2px solid #333;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.back-button:hover {
+  background: #7f8c8d;
+}
+
+.move-button {
+  padding: 8px;
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: left;
+  transition: all 0.2s;
   font-size: 0.9rem;
 }
 
-.move-details span {
-  font-weight: bold;
+.move-button:hover:not(:disabled) {
+  border-color: #333;
+  background: #f8f8f8;
 }
 
-/* New: Super Effective / Not Effective Popups */
+/* 교체 버튼 상세 */
+.switch-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  background: white;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.switch-button img {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+}
+
+.switch-info {
+  flex-grow: 1;
+}
+
+.switch-info .name {
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: block;
+}
+
+.switch-button .mini-hp-bar {
+  width: 100%;
+  height: 6px;
+  background: #eee;
+  border: 1px solid #333;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.switch-button .mini-hp-bar .inner {
+  height: 100%;
+}
+
+.switch-button.active {
+  border-color: #3498db;
+  background: #ebf5fb;
+  cursor: default;
+}
+
+.switch-button.fainted {
+  filter: grayscale(1);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.battle-log {
+  padding: 15px;
+  background: white;
+  overflow-y: auto;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.battle-log p {
+  margin-bottom: 5px;
+  border-bottom: 1px dashed #eee;
+}
+
+.move-details {
+  animation: fadeIn 0.2s ease-in;
+}
+
+.move-details h3 { margin: 0 0 5px 0; color: #333; border-bottom: 2px solid #333; }
+.move-details p { margin: 2px 0; font-size: 0.9rem; border: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 애니메이션 */
+.anim-attack-player { animation: attackPlayer 0.4s ease-in-out; }
+.anim-attack-opponent { animation: attackOpponent 0.4s ease-in-out; }
+.anim-damage { animation: damageEffect 0.2s ease infinite; }
+.anim-faint { animation: faintEffect 0.8s ease-in forwards; }
+.anim-pokemon-appear { animation: appearEffect 0.5s ease-out; }
+.anim-trainer-enter { animation: trainerEnter 2.5s ease-out forwards; }
+
+@keyframes attackPlayer {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(30px) translateY(-10px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes attackOpponent {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-30px) translateY(10px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes damageEffect {
+  0%, 100% { opacity: 1; filter: brightness(1); }
+  50% { opacity: 0.5; filter: brightness(2) sepia(1) hue-rotate(-50deg) saturate(5); }
+}
+
+@keyframes faintEffect {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(50px); opacity: 0; }
+}
+
+@keyframes appearEffect {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes trainerEnter {
+  0% { transform: translateX(300px); opacity: 0; }
+  20% { transform: translateX(0); opacity: 1; }
+  80% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-300px); opacity: 0; }
+}
+
+/* 팝업 효과 */
 .super-effective-popup, .not-effective-popup {
   position: absolute;
-  font-family: 'DNFBitBitv2', sans-serif;
-  font-size: 1.5rem;
+  padding: 5px 15px;
+  border-radius: 20px;
   font-weight: bold;
-  text-shadow: 2px 2px 3px rgba(0,0,0,0.7);
-  white-space: nowrap;
-  pointer-events: none; /* Prevent blocking clicks */
   z-index: 20;
-  animation: popup-fade-up 1s forwards;
+  animation: popupScale 1s ease-out forwards;
 }
 
-.super-effective-popup {
-  color: #ffed80; /* Bright yellow/gold */
+.super-effective-popup { background: #f1c40f; color: #c0392b; border: 2px solid #c0392b; }
+.not-effective-popup { background: #bdc3c7; color: #2c3e50; border: 2px solid #2c3e50; }
+
+.popup-opponent { top: 25%; right: 15%; }
+.popup-player { bottom: 20%; left: 15%; }
+
+@keyframes popupScale {
+  0% { transform: scale(0); opacity: 0; }
+  20% { transform: scale(1.2); opacity: 1; }
+  80% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
 }
 
-.not-effective-popup {
-  color: #a8a8a8; /* Greyish */
-  font-size: 1.2rem;
-}
-
-.popup-opponent {
-  top: 30%;
-  right: 25%;
-  transform: translateX(-50%);
-}
-
-.popup-player {
-  bottom: 25%;
-  left: 25%;
-  transform: translateX(-50%);
-}
-
-@keyframes popup-fade-up {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.8);
-  }
-  20% {
-    opacity: 1;
-    transform: translateY(0px) scale(1);
-  }
-  80% {
-    opacity: 1;
-    transform: translateY(-10px) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-30px) scale(1.2);
-  }
-}
-
-@media (max-width: 600px) {
-  .super-effective-popup, .not-effective-popup {
-    font-size: 1.2rem;
-  }
-
-  .popup-opponent {
-    top: 25%;
-    right: 15%;
-  }
-
-  .popup-player {
-    bottom: 20%;
-    left: 15%;
-  }
-}
+/* 로그 특수 컬러 */
+.log-super-effective { color: #e67e22; font-weight: bold; }
+.log-not-effective { color: #7f8c8d; }
+.log-faint { color: #c0392b; font-weight: bold; font-style: italic; }
+.log-move-use { color: #2980b9; font-weight: bold; }

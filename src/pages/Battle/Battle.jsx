@@ -17,6 +17,7 @@ function Battle() {
   const [isIntro, setIsIntro] = useState(true); // 관장 등장 인트로 상태
   const [hoveredMove, setHoveredMove] = useState(null);
   const [screenShake, setScreenShake] = useState(false);
+  const [battleMode, setBattleMode] = useState('main'); // 'main', 'attack', 'switch'
 
   const [myAnim, setMyAnim] = useState('');
   const [oppAnim, setOppAnim] = useState('');
@@ -25,6 +26,8 @@ function Battle() {
 
   const battleTeamRef = useRef([]);
   const battleOpponentRef = useRef([]);
+  const myCurrentIdxRef = useRef(0);
+  const oppCurrentIdxRef = useRef(0);
 
   useEffect(() => {
     battleTeamRef.current = battleTeam;
@@ -34,9 +37,16 @@ function Battle() {
     battleOpponentRef.current = battleOpponent;
   }, [battleOpponent]);
 
+  useEffect(() => {
+    myCurrentIdxRef.current = myCurrentIdx;
+  }, [myCurrentIdx]);
+
+  useEffect(() => {
+    oppCurrentIdxRef.current = oppCurrentIdx;
+  }, [oppCurrentIdx]);
+
   // 스토어 데이터로 컴포넌트 내부 상태 초기화
   useEffect(() => {
-    // 팀 선택 없이 들어온 경우 메인으로 리디렉션
     if (!userTeam || userTeam.length === 0) {
       navigate('/');
       return;
@@ -49,7 +59,6 @@ function Battle() {
     setBattleOpponent(initialOppTeam);
     setLogs([`체육관 관장 ${leaderName}이(가) 승부를 걸어왔다!`]);
 
-    // 인트로 타이머 (2.5초 후 포켓몬 등장)
     const introTimer = setTimeout(() => {
       setIsIntro(false);
       addLog(`${leaderName}은(는) ${opponentTeam[0].name}을(를) 내보냈다!`);
@@ -62,7 +71,6 @@ function Battle() {
   const myPokemon = battleTeam[myCurrentIdx];
   const oppPokemon = battleOpponent[oppCurrentIdx];
 
-  // 타입별 색상 정의
   const typeColors = {
     "normal": "#A8A77A", "fire": "#EE8130", "water": "#6390F0", "electric": "#F7D02C",
     "grass": "#7AC74C", "ice": "#96D9D6", "fighting": "#C22E28", "poison": "#A33EA1",
@@ -77,12 +85,11 @@ function Battle() {
     "rock": "바위", "ghost": "고스트", "dragon": "드래곤", "steel": "강철", "fairy": "페어리"
   };
 
-  // HP 퍼센트에 따른 색상 반환
   const getHpColor = (current, max) => {
     const ratio = current / max;
-    if (ratio > 0.5) return '#4cc42a'; // 초록
-    if (ratio > 0.2) return '#f1c40f'; // 노랑
-    return '#e74c3c'; // 빨강
+    if (ratio > 0.5) return '#4cc42a';
+    if (ratio > 0.2) return '#f1c40f';
+    return '#e74c3c';
   };
 
   const addLog = (msg) => {
@@ -91,8 +98,8 @@ function Battle() {
 
   const processStatusEffects = async () => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    const currentMyPokemon = battleTeamRef.current[myCurrentIdx];
-    const currentOppPokemon = battleOpponentRef.current[oppCurrentIdx];
+    const currentMyPokemon = battleTeamRef.current[myCurrentIdxRef.current];
+    const currentOppPokemon = battleOpponentRef.current[oppCurrentIdxRef.current];
     
     processEndOfTurnStatus(currentMyPokemon, setBattleTeam, addLog);
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -100,18 +107,18 @@ function Battle() {
     await new Promise(resolve => setTimeout(resolve, 500));
   };
   
-  // 로그 내용에 따른 클래스 부여
   const getLogClass = (log) => {
     if (log.includes('효과가 굉장했다')) return 'log-super-effective';
     if (log.includes('효과가 별로')) return 'log-not-effective';
     if (log.includes('쓰러졌다')) return 'log-faint';
-    if (log.includes('의 ')) return 'log-move-use'; // 기술 사용 로그
+    if (log.includes('의 ')) return 'log-move-use';
     return '';
   };
 
   const handleMoveSelection = async (move) => {
     if (isProcessing || !myPokemon || !oppPokemon) return;
     setIsProcessing(true);
+    setBattleMode('main');
 
     const mySpeed = myPokemon.status === 'paralysis' ? myPokemon.stats.speed / 2 : myPokemon.stats.speed;
     const oppSpeed = oppPokemon.status === 'paralysis' ? oppPokemon.stats.speed / 2 : oppPokemon.stats.speed;
@@ -120,12 +127,12 @@ function Battle() {
     if (myFirst) {
       const oppHp = await executeTurn(move, true);
       if (oppHp > 0) {
-        const currentOppPokemon = battleOpponentRef.current[oppCurrentIdx];
+        const currentOppPokemon = battleOpponentRef.current[oppCurrentIdxRef.current];
         const oppMove = currentOppPokemon.moves[Math.floor(Math.random() * currentOppPokemon.moves.length)];
         await executeTurn(oppMove, false);
       }
     } else {
-      const currentOppPokemon = battleOpponentRef.current[oppCurrentIdx];
+      const currentOppPokemon = battleOpponentRef.current[oppCurrentIdxRef.current];
       const oppMove = currentOppPokemon.moves[Math.floor(Math.random() * currentOppPokemon.moves.length)];
       const myHp = await executeTurn(oppMove, false);
       if (myHp > 0) {
@@ -133,19 +140,41 @@ function Battle() {
       }
     }
     
-    // Process status effects after both turns
     await processStatusEffects();
+    setIsProcessing(false);
+  };
 
+  const handleSwitch = async (newIdx) => {
+    if (isProcessing || newIdx === myCurrentIdx || battleTeam[newIdx].currentHp <= 0) return;
+    setIsProcessing(true);
+    setBattleMode('main');
+
+    addLog(`돌아와, ${myPokemon.name}!`);
+    setMyAnim('faint');
+    await new Promise(resolve => setTimeout(resolve, 800));
+    setMyAnim('');
+    
+    setMyCurrentIdx(newIdx);
+    const newPokemon = battleTeam[newIdx];
+    addLog(`가라! ${newPokemon.name}!`);
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // 상대방의 공격
+    const currentOppPokemon = battleOpponentRef.current[oppCurrentIdxRef.current];
+    const oppMove = currentOppPokemon.moves[Math.floor(Math.random() * currentOppPokemon.moves.length)];
+    await executeTurn(oppMove, false);
+
+    await processStatusEffects();
     setIsProcessing(false);
   };
 
   const executeTurn = async (move, isPlayerAttacking) => {
-    const attacker = isPlayerAttacking ? battleTeamRef.current[myCurrentIdx] : battleOpponentRef.current[oppCurrentIdx];
-    const defender = isPlayerAttacking ? battleOpponentRef.current[oppCurrentIdx] : battleTeamRef.current[myCurrentIdx];
+    const attacker = isPlayerAttacking ? battleTeamRef.current[myCurrentIdxRef.current] : battleOpponentRef.current[oppCurrentIdxRef.current];
+    const defender = isPlayerAttacking ? battleOpponentRef.current[oppCurrentIdxRef.current] : battleTeamRef.current[myCurrentIdxRef.current];
 
     const setAttackerState = isPlayerAttacking ? setBattleTeam : setBattleOpponent;
     const setDefenderState = isPlayerAttacking ? setBattleOpponent : setBattleTeam;
-    const attackerIdx = isPlayerAttacking ? myCurrentIdx : oppCurrentIdx;
+    const attackerIdx = isPlayerAttacking ? myCurrentIdxRef.current : oppCurrentIdxRef.current;
 
     let attackerCanAttack = true;
     setAttackerState(prev => {
@@ -158,7 +187,7 @@ function Battle() {
 
     if (!attackerCanAttack) {
       await new Promise(resolve => setTimeout(resolve, 500));
-      return isPlayerAttacking ? battleOpponentRef.current[oppCurrentIdx].currentHp : battleTeamRef.current[myCurrentIdx].currentHp;
+      return isPlayerAttacking ? battleOpponentRef.current[oppCurrentIdxRef.current].currentHp : battleTeamRef.current[myCurrentIdxRef.current].currentHp;
     }
 
     addLog(`${attacker.name}의 ${move.nameKo}!`);
@@ -167,7 +196,6 @@ function Battle() {
     await new Promise(resolve => setTimeout(resolve, 400));
     setMyAnim(''); setOppAnim('');
 
-    // 명중률 체크 (랭크 보정 반영)
     if (!checkHit(attacker, defender, move)) {
       addLog(`${defender.name}은(는) 공격을 피했다!`);
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -181,8 +209,6 @@ function Battle() {
       updatedDefender = { ...defender, currentHp: newHp };
       
       if (isPlayerAttacking) setOppAnim('damage'); else setMyAnim('damage');
-      
-      // 화면 흔들림 효과 트리거
       setScreenShake(true);
       setTimeout(() => setScreenShake(false), 500);
       
@@ -209,7 +235,6 @@ function Battle() {
       updatedDefender = { ...defender };
     }
 
-    // 모든 부가 효과 (상태이상, 능력치 변화 등) 처리
     await applyMoveEffects(move, attacker, updatedDefender, setAttackerState, setDefenderState, addLog);
 
     if (updatedDefender.currentHp === 0) {
@@ -245,9 +270,10 @@ function Battle() {
       }
       if (myPokemon.currentHp === 0) {
         await new Promise(resolve => setTimeout(resolve, 500));
-        if (myCurrentIdx < battleTeam.length - 1) {
-          setMyCurrentIdx(prev => prev + 1);
-          addLog(`가라! ${battleTeam[myCurrentIdx+1].name}!`);
+        const nextIdx = battleTeam.findIndex((p, idx) => idx > myCurrentIdx && p.currentHp > 0);
+        if (nextIdx !== -1) {
+          setMyCurrentIdx(nextIdx);
+          addLog(`가라! ${battleTeam[nextIdx].name}!`);
         } else {
           setBattleOutcome('loss');
           navigate('/result');
@@ -327,31 +353,88 @@ function Battle() {
         {notEffectivePop === 'player' && <div className="not-effective-popup popup-player">효과가 별로인 듯하다...</div>}
       </div>
       <div className="battle-ui">
-        <div className="move-list">
-          {myPokemon.moves.map((move) => (
-                        <button
-                          key={move.name}
-                          className="move-button"
-                          onMouseEnter={() => setHoveredMove(move)}
-                          onMouseLeave={() => setHoveredMove(null)}
-                          onClick={() => handleMoveSelection(move)}
-                          disabled={isProcessing || myPokemon.currentHp === 0}
-                          style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
-                        >
-                          {move.nameKo}
-                        </button>
-                      ))}
+        <div className="battle-controls">
+          {battleMode === 'main' && (
+            <div className="main-actions">
+              <button 
+                className="action-button attack" 
+                onClick={() => setBattleMode('attack')}
+                disabled={isProcessing}
+              >
+                공격하기
+              </button>
+              <button 
+                className="action-button switch" 
+                onClick={() => setBattleMode('switch')}
+                disabled={isProcessing}
+              >
+                교체하기
+              </button>
+            </div>
+          )}
+
+          {battleMode === 'attack' && (
+            <div className="move-list-container">
+              <div className="move-list">
+                {myPokemon.moves.map((move) => (
+                  <button
+                    key={move.name}
+                    className="move-button"
+                    onMouseEnter={() => setHoveredMove(move)}
+                    onMouseLeave={() => setHoveredMove(null)}
+                    onClick={() => handleMoveSelection(move)}
+                    disabled={isProcessing || myPokemon.currentHp === 0}
+                    style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
+                  >
+                    {move.nameKo}
+                  </button>
+                ))}
+              </div>
+              <button className="back-button" onClick={() => setBattleMode('main')}>뒤로가기</button>
+            </div>
+          )}
+
+          {battleMode === 'switch' && (
+            <div className="team-switch-container">
+              <div className="switch-list">
+                {battleTeam.map((p, idx) => (
+                  <button
+                    key={idx}
+                    className={`switch-button ${idx === myCurrentIdx ? 'active' : ''} ${p.currentHp === 0 ? 'fainted' : ''}`}
+                    onClick={() => handleSwitch(idx)}
+                    disabled={isProcessing || idx === myCurrentIdx || p.currentHp === 0}
+                  >
+                    <img src={p.image} alt={p.name} />
+                    <div className="switch-info">
+                      <span className="name">{p.name}</span>
+                      <div className="mini-hp-bar">
+                        <div 
+                          className="inner" 
+                          style={{ 
+                            width: `${(p.currentHp / p.maxHp) * 100}%`,
+                            backgroundColor: getHpColor(p.currentHp, p.maxHp)
+                          }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="battle-log">
-                      {hoveredMove ? (
-                        <div className="move-details">
-                          <h3>{hoveredMove.nameKo}</h3>
-                          <p>타입: <span style={{color: typeColors[hoveredMove.type]}}>{typeMap[hoveredMove.type]}</span></p>
-                          <p>위력: {hoveredMove.power || '—'}</p>
-                          <p>명중률: {hoveredMove.accuracy || '—'}</p>
-                          <p>분류: {hoveredMove.damageClass === 'physical' ? '물리' : '특수'}</p>
-                        </div>
-                      ) : (            logs.map((log, i) => (
+                  </button>
+                ))}
+              </div>
+              <button className="back-button" onClick={() => setBattleMode('main')}>뒤로가기</button>
+            </div>
+          )}
+        </div>
+        
+        <div className="battle-log">
+          {hoveredMove && battleMode === 'attack' ? (
+            <div className="move-details">
+              <h3>{hoveredMove.nameKo}</h3>
+              <p>타입: <span style={{color: typeColors[hoveredMove.type]}}>{typeMap[hoveredMove.type]}</span></p>
+              <p>위력: {hoveredMove.power || '—'}</p>
+              <p>명중률: {hoveredMove.accuracy || '—'}</p>
+              <p>분류: {hoveredMove.damageClass === 'physical' ? '물리' : '특수'}</p>
+            </div>
+          ) : (            logs.map((log, i) => (
               <p key={i} className={getLogClass(log)}>{log}</p>
             ))
           )}
