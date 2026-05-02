@@ -116,7 +116,7 @@ function Battle() {
   };
 
   const handleMoveSelection = async (move) => {
-    if (isProcessing || !myPokemon || !oppPokemon) return;
+    if (isProcessing || isIntro || !myPokemon || !oppPokemon) return;
     setIsProcessing(true);
     setBattleMode('main');
 
@@ -145,7 +145,7 @@ function Battle() {
   };
 
   const handleSwitch = async (newIdx) => {
-    if (isProcessing || newIdx === myCurrentIdx || battleTeam[newIdx].currentHp <= 0) return;
+    if (isProcessing || isIntro || newIdx === myCurrentIdx || battleTeam[newIdx].currentHp <= 0) return;
     setIsProcessing(true);
     setBattleMode('main');
 

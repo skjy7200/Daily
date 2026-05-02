@@ -158,7 +158,10 @@ export const applyMoveEffects = async (move, attacker, defender, setAttackerStat
         const pokeIndex = newState.findIndex(p => p.id === targetId);
         if (pokeIndex === -1) return newState;
 
-        const updatedPokemon = { ...newState[pokeIndex] };
+        const updatedPokemon = { 
+          ...newState[pokeIndex],
+          statStages: { ...newState[pokeIndex].statStages }
+        };
         const currentStage = updatedPokemon.statStages[sc.stat] || 0;
         const newStage = Math.max(-6, Math.min(6, currentStage + sc.change));
 
