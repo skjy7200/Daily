@@ -69,209 +69,278 @@
 /* 체력바 HUD */
 .status-bar {
   position: absolute;
-  width: 240px;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 8px 12px;
-  border: 3px solid #333;
-  border-radius: 10px;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+  width: 260px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 240, 0.9) 100%);
+  padding: 10px 15px;
+  border: 3px solid #444;
+  border-radius: 15px;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.2), inset 0 0 10px rgba(255,255,255,0.5);
   z-index: 10;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.5s ease, transform 0.3s ease;
 }
 
 .status-bar.hidden {
   opacity: 0;
+  transform: translateX(-20px);
 }
 
 .status-bar.opponent {
   top: 10%;
-  left: 8%;
-  border-top-right-radius: 0;
+  left: 5%;
+  border-bottom-right-radius: 2px;
 }
 
 .status-bar.player {
   bottom: 25%;
-  right: 8%;
-  border-bottom-left-radius: 0;
+  right: 5%;
+  border-top-left-radius: 2px;
 }
 
 .status-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .status-info .name {
-  font-weight: bold;
-  font-size: 1.1rem;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
 }
 
 .status-info .level {
-  font-size: 0.8rem;
-  color: #666;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #7f8c8d;
+  background: rgba(0,0,0,0.05);
+  padding: 2px 6px;
+  border-radius: 10px;
 }
 
 .hp-container {
   width: 100%;
-  height: 12px;
-  background: #eee;
-  border: 2px solid #333;
-  border-radius: 6px;
+  height: 14px;
+  background: #333;
+  border: 2px solid #444;
+  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  position: relative;
 }
 
 .hp-bar {
   height: 100%;
-  transition: width 0.5s ease-out, background-color 0.3s;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.3);
+}
+
+.hp-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: rgba(255,255,255,0.2);
+  pointer-events: none;
 }
 
 .hp-text {
   display: block;
   text-align: right;
-  font-size: 0.8rem;
-  font-weight: bold;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #34495e;
+  letter-spacing: 0.5px;
 }
 
 /* 상태이상 뱃지 */
 .status-text {
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
   color: white;
-  font-weight: bold;
+  font-weight: 900;
   text-transform: uppercase;
-  margin-left: 5px;
+  margin-left: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
 }
-.status-text.paralysis { background: #f1c40f; color: #000; }
-.status-text.burn { background: #e67e22; }
-.status-text.poison { background: #9b59b6; }
-.status-text.sleep { background: #95a5a6; }
-.status-text.freeze { background: #3498db; }
+.status-text.paralysis { background: linear-gradient(to bottom, #f1c40f, #f39c12); color: #000; }
+.status-text.burn { background: linear-gradient(to bottom, #e67e22, #d35400); }
+.status-text.poison { background: linear-gradient(to bottom, #9b59b6, #8e44ad); }
+.status-text.sleep { background: linear-gradient(to bottom, #95a5a6, #7f8c8d); }
+.status-text.freeze { background: linear-gradient(to bottom, #3498db, #2980b9); }
 
 /* 배틀 UI 하단 */
 .battle-ui {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: #f0f0f0;
-  border: 4px solid #333;
+  grid-template-columns: 1.2fr 0.8fr;
+  background: #ecf0f1;
+  border: 5px solid #2c3e50;
   border-top: none;
-  border-radius: 0 0 10px 10px;
-  height: 200px;
+  border-radius: 0 0 15px 15px;
+  height: 220px;
+  box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .battle-controls {
-  padding: 15px;
-  border-right: 4px solid #333;
+  padding: 20px;
+  border-right: 5px solid #2c3e50;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background: rgba(255,255,255,0.5);
 }
 
 /* 메인 액션 버튼 (공격/교체) */
 .main-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 20px;
   height: 100%;
   align-items: center;
 }
 
 .action-button {
-  height: 80px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border: 3px solid #333;
-  border-radius: 10px;
+  height: 100px;
+  font-size: 1.4rem;
+  font-weight: 900;
+  border: 4px solid #2c3e50;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   color: white;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: rgba(255,255,255,0.1);
+  pointer-events: none;
 }
 
 .action-button.attack {
-  background: #e74c3c;
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  box-shadow: 0 6px 0 #962d22;
 }
 
 .action-button.switch {
-  background: #3498db;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  box-shadow: 0 6px 0 #1c5982;
 }
 
 .action-button:hover:not(:disabled) {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   filter: brightness(1.1);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.action-button:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #2c3e50;
 }
 
 .action-button:disabled {
-  filter: grayscale(1);
-  opacity: 0.7;
+  filter: grayscale(0.8);
+  opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 0 #7f8c8d;
 }
 
 /* 서브 메뉴 레이아웃 */
 .move-list-container, .team-switch-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   height: 100%;
 }
 
 .move-list, .switch-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
   flex-grow: 1;
 }
 
 .back-button {
-  padding: 5px;
-  background: #95a5a6;
+  padding: 8px;
+  background: #7f8c8d;
   color: white;
-  border: 2px solid #333;
-  border-radius: 5px;
+  border: 3px solid #2c3e50;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 900;
+  text-transform: uppercase;
+  transition: all 0.2s;
 }
 
 .back-button:hover {
-  background: #7f8c8d;
+  background: #34495e;
+  transform: scale(1.02);
 }
 
 .move-button {
-  padding: 8px;
+  padding: 10px 15px;
   background: white;
-  border: 2px solid #ccc;
-  border-radius: 5px;
+  border: 3px solid #bdc3c7;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 800;
   text-align: left;
   transition: all 0.2s;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .move-button:hover:not(:disabled) {
-  border-color: #333;
-  background: #f8f8f8;
+  border-color: #2c3e50;
+  background: #f8f9fa;
+  transform: translateX(5px);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
 }
 
 /* 교체 버튼 상세 */
 .switch-button {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px;
+  gap: 12px;
+  padding: 8px;
   background: white;
-  border: 2px solid #ccc;
-  border-radius: 5px;
+  border: 3px solid #bdc3c7;
+  border-radius: 10px;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .switch-button img {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   image-rendering: pixelated;
+  transition: transform 0.2s;
+}
+
+.switch-button:hover:not(:disabled) {
+  border-color: #3498db;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.switch-button:hover img {
+  transform: scale(1.1);
 }
 
 .switch-info {
@@ -279,55 +348,89 @@
 }
 
 .switch-info .name {
-  font-size: 0.8rem;
-  font-weight: bold;
+  font-size: 0.9rem;
+  font-weight: 800;
   display: block;
+  margin-bottom: 4px;
+  color: #2c3e50;
 }
 
 .switch-button .mini-hp-bar {
   width: 100%;
-  height: 6px;
+  height: 8px;
   background: #eee;
-  border: 1px solid #333;
-  border-radius: 3px;
+  border: 2px solid #2c3e50;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .switch-button .mini-hp-bar .inner {
   height: 100%;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
 }
 
 .switch-button.active {
   border-color: #3498db;
-  background: #ebf5fb;
+  background: #ecf0f1;
   cursor: default;
+  box-shadow: inset 0 0 10px rgba(52, 152, 219, 0.1);
 }
 
 .switch-button.fainted {
   filter: grayscale(1);
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 .battle-log {
-  padding: 15px;
+  padding: 20px;
   background: white;
   overflow-y: auto;
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  border-left: none;
+  font-weight: 500;
+  color: #2c3e50;
 }
 
 .battle-log p {
-  margin-bottom: 5px;
-  border-bottom: 1px dashed #eee;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .move-details {
-  animation: fadeIn 0.2s ease-in;
+  animation: fadeIn 0.25s ease-out;
+  padding: 5px;
 }
 
-.move-details h3 { margin: 0 0 5px 0; color: #333; border-bottom: 2px solid #333; }
-.move-details p { margin: 2px 0; font-size: 0.9rem; border: none; }
+.move-details h3 { 
+  margin: 0 0 10px 0; 
+  color: #2c3e50; 
+  border-bottom: 3px solid #2c3e50; 
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+.move-details p { 
+  margin: 4px 0; 
+  font-size: 1rem; 
+  border: none; 
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }

@@ -384,9 +384,22 @@ function Battle() {
                     onMouseLeave={() => setHoveredMove(null)}
                     onClick={() => handleMoveSelection(move)}
                     disabled={isProcessing || myPokemon.currentHp === 0}
-                    style={{ borderLeft: `8px solid ${typeColors[move.type] || '#ccc'}` }}
+                    style={{ borderLeft: `10px solid ${typeColors[move.type] || '#ccc'}` }}
                   >
-                    {move.nameKo}
+                    <span>{move.nameKo}</span>
+                    <span 
+                      className="move-type-badge" 
+                      style={{ 
+                        backgroundColor: typeColors[move.type],
+                        fontSize: '0.7rem',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        color: 'white',
+                        textShadow: '1px 1px 1px rgba(0,0,0,0.3)'
+                      }}
+                    >
+                      {typeMap[move.type]}
+                    </span>
                   </button>
                 ))}
               </div>
