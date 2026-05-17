@@ -82,7 +82,7 @@ function Result() {
           </div>
         </div>
 
-        <div className="button-group" style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className="button-group">
           <button 
             className="retry-button"
             onClick={handleRetry}
@@ -92,21 +92,10 @@ function Result() {
           <button 
             className="share-button"
             onClick={handleShare}
-            style={{ 
-              backgroundColor: '#2ecc71', 
-              color: 'white', 
-              border: 'none', 
-              padding: '15px 30px', 
-              fontSize: '1.3em', 
-              borderRadius: '50px',
-              cursor: 'pointer',
-              boxShadow: '0 5px 15px rgba(46, 204, 113, 0.4)'
-            }}
           >
             결과 공유하기
           </button>
-        </div>
-      </div>
+        </div>      </div>
     </div>
   );
 }

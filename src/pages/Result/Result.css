@@ -134,6 +134,30 @@
 }
 
 
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.share-button {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.3em;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+}
+
+.share-button:hover {
+  background-color: #27ae60;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6);
+}
+
 /* --- 모바일 대응 --- */
 @media (max-width: 600px) {
   .result-card {

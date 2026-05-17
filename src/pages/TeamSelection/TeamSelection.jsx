@@ -95,7 +95,6 @@ function TeamSelection() {
               key={p.id} 
               className={`pokemon-card ${isSelected ? 'selected' : ''}`}
               onClick={() => toggleSelect(p)}
-              style={{ border: isSelected ? '3px solid #ffcb05' : '1px solid #ccc', cursor: 'pointer' }}
             >
               <img src={p.image} alt={p.name} className="pokemon-image" />
               <h3>{p.name}</h3>
@@ -118,7 +117,6 @@ function TeamSelection() {
         className="start-battle-button" 
         disabled={selectedTeam.length !== 3}
         onClick={startBattle}
-        style={{ marginTop: '20px', padding: '10px 20px', fontSize: '1.2rem' }}
       >
         배틀 시작!
       </button>

@@ -93,7 +93,7 @@ function Battle() {
   };
 
   const addLog = (msg) => {
-    setLogs(prev => [msg, ...prev].slice(0, 5));
+    setLogs(prev => [msg, ...prev].slice(0, 10));
   };
 
   const processStatusEffects = async () => {
