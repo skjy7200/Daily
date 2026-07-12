@@ -270,7 +270,7 @@ function Battle() {
       }
       if (myPokemon.currentHp === 0) {
         await new Promise(resolve => setTimeout(resolve, 500));
-        const nextIdx = battleTeam.findIndex((p, idx) => idx > myCurrentIdx && p.currentHp > 0);
+        const nextIdx = battleTeam.findIndex((p) => p.currentHp > 0);
         if (nextIdx !== -1) {
           setMyCurrentIdx(nextIdx);
           addLog(`가라! ${battleTeam[nextIdx].name}!`);
