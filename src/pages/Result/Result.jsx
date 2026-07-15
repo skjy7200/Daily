@@ -24,17 +24,31 @@ function Result() {
     return () => clearInterval(timer);
   }, [battleOutcome, navigate]);
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const now = new Date();
     const dateStr = `${now.getMonth() + 1}/${now.getDate()}`;
     const effectiveLeaderName = leaderName || '오늘의 관장';
     const message = `[Pokedaily] ${dateStr} 챌린지 결과\nVS ${effectiveLeaderName}\n\n${win ? '🏆 승리했습니다!' : '💀 패배했습니다...'}\n\n매일 새로운 체육관 관장에게 도전하세요!\nhttps://pokedaily.app`;
-    
-    navigator.clipboard.writeText(message).then(() => {
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Pokedaily 챌린지 결과',
+          text: message,
+        });
+        return;
+      } catch (err) {
+        console.error('공유 실패, 클립보드로 대체:', err);
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(message);
       alert('결과가 클립보드에 복사되었습니다!');
-    }).catch(err => {
+    } catch (err) {
       console.error('복사 실패:', err);
-    });
+      alert('공유 및 복사에 실패했습니다.');
+    }
   };
   
   const handleRetry = () => {
