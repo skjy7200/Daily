@@ -29,8 +29,8 @@ const GYM_LEADER_SPRITES = {
 };
 
 /**
- * [DevMode] 가상 날짜를 반환합니다.
- * localStorage의 'debug_day_offset' 값을 읽어 현재 시간에 더합니다.
+ * [DevMode] 가상 날짜 반환.
+ * localStorage의 'debug_day_offset' 값을 현재 시간에 반영.
  */
 const getVirtualDate = () => {
   const now = new Date();
@@ -42,20 +42,20 @@ const getVirtualDate = () => {
 };
 
 /**
- * 오늘의 챌린지를 생성합니다.
- * KST 날짜를 기반으로 시드를 생성하여 모든 유저에게 동일한 결과를 제공합니다.
- * @returns {{leader: string, leaderSprite: string, leaderPokemon: Array, rentalPokemon: Array}} 오늘의 챌린지 상세 정보.
+ * 오늘의 챌린지 생성.
+ * KST 기준 날짜 시드로 일관된 결과 제공.
+ * @returns {{leader: string, leaderSprite: string, leaderPokemon: Array, rentalPokemon: Array}} 챌린지 상세 정보
  */
 export const generateDailyChallenge = () => {
-  const now = getVirtualDate(); // Use Virtual Date
+  const now = getVirtualDate(); // 가상 날짜 적용
   const offset = now.getTimezoneOffset() * 60 * 1000;
   const kstOffset = 9 * 60 * 60 * 1000;
   const nowKST = new Date(now.getTime() + offset + kstOffset);
   
-  // YYYYMMDD 형식의 숫자를 시드로 사용
+  // YYYYMMDD 형식 시드 생성
   const seed = nowKST.getFullYear() * 10000 + (nowKST.getMonth() + 1) * 100 + nowKST.getDate();
 
-  // Mulberry32 알고리즘: 더 고품질의 난수 생성기
+  // Mulberry32 난수 생성기
   const mulberry32 = (a) => {
     return () => {
       let t = a += 0x6D2B79F5;
@@ -65,7 +65,7 @@ export const generateDailyChallenge = () => {
     };
   };
 
-  // 시드 기반 난수 생성기 초기화
+  // 난수 생성기 초기화
   const random = mulberry32(seed);
 
   // 체육관 관장 선택
@@ -73,15 +73,15 @@ export const generateDailyChallenge = () => {
   const leader = GYM_LEADERS[leaderIndex];
   const leaderSprite = GYM_LEADER_SPRITES[leader];
 
-  // 관장 전용 포켓몬 가져오기
+  // 관장 포켓몬 선정
   const leaderPokemonIds = GYM_LEADER_TEAMS[leader];
   const leaderPokemon = pokemonData.filter(p => leaderPokemonIds.includes(p.id))
     .sort((a, b) => leaderPokemonIds.indexOf(a.id) - leaderPokemonIds.indexOf(b.id));
 
-  // 유저 렌탈 포켓몬을 위해 관장 포켓몬을 제외한 풀 생성
+  // 관장 포켓몬 제외 렌탈 풀 생성
   const rentalPool = pokemonData.filter(p => !leaderPokemonIds.includes(p.id));
   
-  // 유저를 위한 6마리 렌탈 포켓몬 선택
+  // 렌탈 포켓몬 6마리 선정
   const rentalPokemon = [];
   for (let i = 0; i < 6; i++) {
     const index = Math.floor(random() * rentalPool.length);
@@ -93,15 +93,15 @@ export const generateDailyChallenge = () => {
 };
 
 /**
- * 다음 자정(KST)까지 남은 시간을 계산합니다.
- * @returns {{hours: number, minutes: number, seconds: number}} 남은 시간.
+ * 자정(KST)까지 남은 시간 계산.
+ * @returns {{hours: number, minutes: number, seconds: number}} 잔여 시간
  */
 export const getCountdownToMidnightKST = () => {
-  const now = getVirtualDate(); // Use Virtual Date
+  const now = getVirtualDate(); // 가상 날짜 적용
   
-  // 현재 시간을 KST로 변환
-  const offset = now.getTimezoneOffset() * 60 * 1000; // 로컬 시간대의 오프셋(밀리초)
-  const kstOffset = 9 * 60 * 60 * 1000; // KST는 UTC+9
+  // KST 변환
+  const offset = now.getTimezoneOffset() * 60 * 1000; 
+  const kstOffset = 9 * 60 * 60 * 1000;
   const nowKST = new Date(now.getTime() + offset + kstOffset);
 
   const midnightKST = new Date(nowKST);
