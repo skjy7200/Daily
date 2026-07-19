@@ -2,89 +2,133 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
+  min-height: 100vh;
+  padding: 20px;
+  background: radial-gradient(circle at center, #2c3e50 0%, #000 100%);
+  transition: background 0.5s ease;
+}
+
+.result-container:has(.result-card.win) {
+  background: radial-gradient(circle at center, #27ae60 0%, #0c2415 100%);
+}
+
+.result-container:has(.result-card.lose) {
+  background: radial-gradient(circle at center, #c0392b 0%, #290806 100%);
 }
 
 .result-card {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   padding: 50px;
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  border-radius: 30px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
   text-align: center;
   max-width: 500px;
   width: 90%;
-  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes popIn {
-  from { transform: scale(0.5); opacity: 0; }
+  from { transform: scale(0.8); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 
 .result-card.win h1 {
-  color: #2ecc71;
+  color: #27ae60;
   font-size: 4em;
   margin: 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
 .result-card.lose h1 {
-  color: #e74c3c;
+  color: #c0392b;
   font-size: 4em;
   margin: 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
 .result-message {
   font-size: 1.2em;
-  color: #555;
-  margin: 20px 0 40px 0;
+  color: #444;
+  margin: 20px 0 30px 0;
+  font-weight: 500;
 }
 
 .victory-icon, .defeat-icon {
   font-size: 5em;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.retry-button, .share-button {
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.1em;
+  font-weight: bold;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .retry-button {
-  background-color: #3498db;
+  background-color: #34495e;
   color: white;
-  border: none;
-  padding: 15px 40px;
-  font-size: 1.3em;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
 }
 
 .retry-button:hover {
-  background-color: #2980b9;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
+  background-color: #2c3e50;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+.retry-button:active {
+  transform: translateY(0);
+}
+
+.share-button {
+  background-color: #27ae60;
+  color: white;
+}
+
+.share-button:hover {
+  background-color: #219150;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
+}
+
+.share-button:active {
+  transform: translateY(0);
 }
 
 .countdown-section {
-  margin: 30px 0;
+  margin: 25px 0;
   padding: 15px;
-  background: #f9f9f9;
-  border-radius: 10px;
-  border: 1px solid #eee;
+  background: rgba(0,0,0,0.05);
+  border-radius: 20px;
 }
 
 .countdown-section p {
   margin: 0;
   font-size: 0.9em;
-  color: #888;
+  color: #666;
 }
 
 .countdown-section .timer {
   font-size: 1.8em;
-  font-weight: bold;
-  color: #e74c3c;
+  font-weight: 800;
+  color: #333;
+  font-variant-numeric: tabular-nums;
 }
 
 .badge-container {
   margin-bottom: 20px;
-  animation: fadeIn 1s 0.5s forwards;
+  animation: fadeIn 0.8s ease-out forwards;
   opacity: 0;
 }
 
@@ -96,36 +140,16 @@
   width: 100px;
   height: 100px;
   margin: 0 auto 10px;
-  animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.8s;
+  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.2));
+  animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s backwards;
 }
 
 @keyframes bounceIn {
-    from, 20%, 40%, 60%, 80%, to {
-        animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
-    }
-    0% {
-        opacity: 0;
-        transform: scale3d(.3, .3, .3);
-    }
-    20% {
-        transform: scale3d(1.1, 1.1, 1.1);
-    }
-    40% {
-        transform: scale3d(.9, .9, .9);
-    }
-    60% {
-        opacity: 1;
-        transform: scale3d(1.03, 1.03, 1.03);
-    }
-    80% {
-        transform: scale3d(.97, .97, .97);
-    }
-    to {
-        opacity: 1;
-        transform: scale3d(1, 1, 1);
-    }
+    0% { opacity: 0; transform: scale(0.3); }
+    50% { transform: scale(1.05); }
+    70% { transform: scale(0.95); }
+    100% { opacity: 1; transform: scale(1); }
 }
-
 
 .badge-message {
   font-size: 1.1em;
@@ -133,29 +157,11 @@
   color: #333;
 }
 
-
 .button-group {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   justify-content: center;
-}
-
-.share-button {
-  background-color: #2ecc71;
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  font-size: 1.3em;
-  border-radius: 50px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
-}
-
-.share-button:hover {
-  background-color: #27ae60;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6);
+  margin-top: 20px;
 }
 
 /* --- 모바일 대응 --- */
@@ -164,26 +170,13 @@
     padding: 30px 20px;
   }
 
-  .result-card h1 {
-    font-size: 3em !important;
-  }
-
-  .result-message {
-    font-size: 1em;
-  }
-
-  .victory-icon, .defeat-icon {
-    font-size: 4em;
-  }
-
   .button-group {
-    flex-direction: column; /* 세로 배치 */
+    flex-direction: column;
     width: 100%;
   }
 
   .retry-button, .share-button {
     width: 100%;
-    padding: 12px !important;
-    font-size: 1.1em !important;
+    padding: 14px;
   }
 }
