@@ -2,27 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateDailyChallenge, getCountdownToMidnightKST } from '../../utils/challengeUtils';
+import { TYPE_COLORS_KO as typeColors } from '../../utils/constants';
 import './Main.css';
-
-const typeColors = {
-  "노말": "#A8A77A",
-  "불꽃": "#EE8130",
-  "물": "#6390F0",
-  "전기": "#F7D02C",
-  "풀": "#7AC74C",
-  "얼음": "#96D9D6",
-  "격투": "#C22E28",
-  "독": "#A33EA1",
-  "땅": "#E2BF65",
-  "비행": "#A98FF3",
-  "에스퍼": "#F95587",
-  "벌레": "#A6B91A",
-  "바위": "#B6A136",
-  "고스트": "#735797",
-  "드래곤": "#6F35FC",
-  "강철": "#B7B7CE",
-  "페어리": "#D685AD",
-};
 
 function Main() {
   const navigate = useNavigate();
@@ -30,15 +11,12 @@ function Main() {
   const [countdown, setCountdown] = useState(getCountdownToMidnightKST());
 
   useEffect(() => {
-    // 컴포넌트 마운트 시 일일 챌린지 생성
     setDailyChallenge(generateDailyChallenge());
 
-    // 카운트다운 타이머 설정
     const timer = setInterval(() => {
       const newCountdown = getCountdownToMidnightKST();
       setCountdown(newCountdown);
 
-      // 카운트다운이 0에 도달하면 새 날짜에 대한 챌린지 새로고침
       if (newCountdown.hours === 0 && newCountdown.minutes === 0 && newCountdown.seconds === 0) {
         setDailyChallenge(generateDailyChallenge());
       }

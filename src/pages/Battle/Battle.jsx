@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useBattleStore from '../../store/battleStore';
 import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects, checkHit } from '../../utils/battleUtils';
+import { TYPE_COLORS_EN as typeColors, TYPE_MAP as typeMap } from '../../utils/constants';
 import './Battle.css';
 
 function Battle() {
@@ -14,15 +15,15 @@ function Battle() {
   const [battleOpponent, setBattleOpponent] = useState([]);
   const [logs, setLogs] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isIntro, setIsIntro] = useState(true); // 관장 등장 인트로 상태
+  const [isIntro, setIsIntro] = useState(true);
   const [hoveredMove, setHoveredMove] = useState(null);
   const [screenShake, setScreenShake] = useState(false);
-  const [battleMode, setBattleMode] = useState('main'); // 'main', 'attack', 'switch'
+  const [battleMode, setBattleMode] = useState('main');
 
   const [myAnim, setMyAnim] = useState('');
   const [oppAnim, setOppAnim] = useState('');
-  const [superEffectivePop, setSuperEffectivePop] = useState(null); // 'player' or 'opponent'
-  const [notEffectivePop, setNotEffectivePop] = useState(null); // 'player' or 'opponent'
+  const [superEffectivePop, setSuperEffectivePop] = useState(null);
+  const [notEffectivePop, setNotEffectivePop] = useState(null);
 
   const battleTeamRef = useRef([]);
   const battleOpponentRef = useRef([]);
@@ -45,7 +46,6 @@ function Battle() {
     oppCurrentIdxRef.current = oppCurrentIdx;
   }, [oppCurrentIdx]);
 
-  // 스토어 데이터로 컴포넌트 내부 상태 초기화
   useEffect(() => {
     if (!userTeam || userTeam.length === 0) {
       navigate('/');
@@ -70,20 +70,6 @@ function Battle() {
 
   const myPokemon = battleTeam[myCurrentIdx];
   const oppPokemon = battleOpponent[oppCurrentIdx];
-
-  const typeColors = {
-    "normal": "#A8A77A", "fire": "#EE8130", "water": "#6390F0", "electric": "#F7D02C",
-    "grass": "#7AC74C", "ice": "#96D9D6", "fighting": "#C22E28", "poison": "#A33EA1",
-    "ground": "#E2BF65", "flying": "#A98FF3", "psychic": "#F95587", "bug": "#A6B91A",
-    "rock": "#B6A136", "ghost": "#735797", "dragon": "#6F35FC", "steel": "#B7B7CE", "fairy": "#D685AD"
-  };
-
-  const typeMap = {
-    "normal": "노말", "fire": "불꽃", "water": "물", "electric": "전기",
-    "grass": "풀", "ice": "얼음", "fighting": "격투", "poison": "독",
-    "ground": "땅", "flying": "비행", "psychic": "에스퍼", "bug": "벌레",
-    "rock": "바위", "ghost": "고스트", "dragon": "드래곤", "steel": "강철", "fairy": "페어리"
-  };
 
   const getHpColor = (current, max) => {
     const ratio = current / max;
