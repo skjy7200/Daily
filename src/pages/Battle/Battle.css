@@ -384,19 +384,20 @@
 }
 
 .battle-log {
-  padding: 20px;
+  padding: 16px;
   background: white;
   overflow-y: auto;
-  font-size: 1.15rem;
-  line-height: 1.8;
+  font-size: 1rem; /* Slightly smaller for better fit on small screens */
+  line-height: 1.6; /* Improved line height for readability */
   border-left: none;
   font-weight: 500;
   color: #2c3e50;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
 }
 
 .battle-log p {
-  margin-bottom: 8px;
-  padding-bottom: 4px;
+  margin-bottom: 12px; /* More spacing between log entries */
+  padding-bottom: 8px;
   border-bottom: 1px solid rgba(0,0,0,0.05);
   animation: slideIn 0.3s ease-out;
 }
