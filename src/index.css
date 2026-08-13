@@ -1,3 +1,14 @@
+:root {
+  --primary-color: #ff3e3e;
+  --secondary-color: #3e8bff;
+  --bg-color: #f0f2f5;
+  --text-color: #333;
+  --card-bg: #ffffff;
+  --font-main: 'DNFBitBitv2', sans-serif;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+}
+
 @font-face {
     font-family: 'DNFBitBitv2';
     font-style: normal;
@@ -7,11 +18,11 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 code {

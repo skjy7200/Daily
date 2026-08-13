@@ -1,0 +1,22 @@
+.layout-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-header {
+  padding: var(--spacing-md);
+  background-color: var(--card-bg);
+  border-bottom: 2px solid var(--primary-color);
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.layout-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

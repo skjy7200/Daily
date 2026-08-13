@@ -5,10 +5,11 @@ import TeamSelection from './pages/TeamSelection/TeamSelection';
 import Battle from './pages/Battle/Battle';
 import Result from './pages/Result/Result';
 import DevTools from './components/DevTools';
+import Layout from './components/Layout/Layout';
 
 function App() {
   return (
-    <div className="App">
+    <Layout>
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/select" element={<TeamSelection />} />
@@ -16,7 +17,7 @@ function App() {
         <Route path="/result" element={<Result />} />
       </Routes>
       {import.meta.env.MODE === 'development' && <DevTools />}
-    </div>
+    </Layout>
   );
 }
 
