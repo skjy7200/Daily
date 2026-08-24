@@ -163,11 +163,17 @@ function Battle() {
     const attackerIdx = isPlayerAttacking ? myCurrentIdxRef.current : oppCurrentIdxRef.current;
 
     let attackerCanAttack = true;
+    let updatedAttacker = null;
+
     setAttackerState(prev => {
         const n = [...prev];
         const currentAttacker = { ...n[attackerIdx] };
-        attackerCanAttack = canAttack(currentAttacker, addLog);
-        n[attackerIdx] = currentAttacker;
+        const result = canAttack(currentAttacker, addLog);
+        attackerCanAttack = result.canAttack;
+        if (result.updatedPokemon) {
+            n[attackerIdx] = result.updatedPokemon;
+            updatedAttacker = result.updatedPokemon;
+        }
         return n;
     });
 

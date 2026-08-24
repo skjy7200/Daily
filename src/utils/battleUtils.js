@@ -76,32 +76,36 @@ export const checkHit = (attacker, defender, move) => {
 };
 
 export const canAttack = (pokemon, addLog) => {
+  let updatedPokemon = null;
+
   if (pokemon.status === 'sleep') {
     if (pokemon.statusTurns > 0) {
       addLog(`${pokemon.name}은(는) 잠들어있다...`);
-      pokemon.statusTurns -= 1;
-      return false;
+      updatedPokemon = { ...pokemon, statusTurns: pokemon.statusTurns - 1 };
+      return { canAttack: false, updatedPokemon };
     } else {
       addLog(`${pokemon.name}이(가) 잠에서 깨어났다!`);
-      pokemon.status = null;
+      updatedPokemon = { ...pokemon, status: null };
+      return { canAttack: true, updatedPokemon };
     }
   }
   if (pokemon.status === 'freeze') {
     if (Math.random() > 0.2) { // 20% 해동 확률
       addLog(`${pokemon.name}이(가) 꽁꽁 얼어있다!`);
-      return false;
+      return { canAttack: false, updatedPokemon };
     } else {
       addLog(`${pokemon.name}의 얼음이 녹았다!`);
-      pokemon.status = null;
+      updatedPokemon = { ...pokemon, status: null };
+      return { canAttack: true, updatedPokemon };
     }
   }
   if (pokemon.status === 'paralysis') {
     if (Math.random() < 0.25) { // 25% 확률로 행동 불가
       addLog(`${pokemon.name}은(는) 몸이 저려 움직일 수 없다!`);
-      return false;
+      return { canAttack: false, updatedPokemon };
     }
   }
-  return true;
+  return { canAttack: true, updatedPokemon };
 };
 
 export const processEndOfTurnStatus = (pokemon, setPokemonState, addLog) => {
