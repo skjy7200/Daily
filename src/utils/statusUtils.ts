@@ -1,16 +1,35 @@
-// src/utils/statusUtils.js
+// src/utils/statusUtils.ts
 
-const ACCURACY_EVASION_MULTIPLIERS = {
+interface StatStages {
+  accuracy?: number;
+  evasion?: number;
+}
+
+interface Pokemon {
+  id: string;
+  name: string;
+  currentHp: number;
+  maxHp: number;
+  status: string | null;
+  statusTurns?: number;
+  statStages: StatStages;
+}
+
+interface Move {
+  accuracy: number | true;
+}
+
+const ACCURACY_EVASION_MULTIPLIERS: Record<string, number> = {
   '-6': 3 / 9, '-5': 3 / 8, '-4': 3 / 7, '-3': 3 / 6, '-2': 3 / 5, '-1': 3 / 4,
   '0': 3 / 3,
   '1': 4 / 3, '2': 5 / 3, '3': 6 / 3, '4': 7 / 3, '5': 8 / 3, '6': 9 / 3,
 };
 
-export const getAccuracyMultiplier = (stage) => {
-  return ACCURACY_EVASION_MULTIPLIERS[stage] || 1;
+export const getAccuracyMultiplier = (stage: number): number => {
+  return ACCURACY_EVASION_MULTIPLIERS[String(stage)] || 1;
 };
 
-export const checkHit = (attacker, defender, move) => {
+export const checkHit = (attacker: Pokemon, defender: Pokemon, move: Move): boolean => {
   if (!move.accuracy || move.accuracy === true) return true;
 
   const accStage = attacker.statStages.accuracy || 0;
@@ -23,11 +42,11 @@ export const checkHit = (attacker, defender, move) => {
   return Math.random() * 100 <= finalAccuracy;
 };
 
-export const canAttack = (pokemon, addLog) => {
-  let updatedPokemon = null;
+export const canAttack = (pokemon: Pokemon, addLog: (message: string) => void): { canAttack: boolean; updatedPokemon: Pokemon | null } => {
+  let updatedPokemon: Pokemon | null = null;
 
   if (pokemon.status === 'sleep') {
-    if (pokemon.statusTurns > 0) {
+    if (pokemon.statusTurns && pokemon.statusTurns > 0) {
       addLog(`${pokemon.name}은(는) 잠들어있다...`);
       updatedPokemon = { ...pokemon, statusTurns: pokemon.statusTurns - 1 };
       return { canAttack: false, updatedPokemon };
@@ -56,7 +75,11 @@ export const canAttack = (pokemon, addLog) => {
   return { canAttack: true, updatedPokemon };
 };
 
-export const processEndOfTurnStatus = (pokemon, setPokemonState, addLog) => {
+export const processEndOfTurnStatus = (
+  pokemon: Pokemon, 
+  setPokemonState: (updater: (prev: Pokemon[]) => Pokemon[]) => void, 
+  addLog: (message: string) => void
+): void => {
   if (!pokemon || pokemon.currentHp <= 0) return;
 
   setPokemonState(prev => {

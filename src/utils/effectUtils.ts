@@ -1,9 +1,43 @@
-// src/utils/effectUtils.js
+// src/utils/effectUtils.ts
 
-export const applyMoveEffects = async (move, attacker, defender, setAttackerState, setDefenderState, addLog) => {
+interface StatChange {
+  stat: 'attack' | 'defense' | 'spAttack' | 'spDefense' | 'speed' | 'accuracy' | 'evasion';
+  change: number;
+}
+
+interface MoveEffect {
+  chance?: number;
+  stat_changes?: StatChange[];
+  condition?: 'poison' | 'burn' | 'sleep' | 'freeze' | 'paralysis';
+}
+
+interface Move {
+  effect?: MoveEffect;
+  category: string;
+}
+
+interface Pokemon {
+  id: string;
+  name: string;
+  types: string[];
+  statStages: Record<string, number>;
+  status: string | null;
+  statusTurns?: number;
+}
+
+type SetPokemonState = (updater: (prev: Pokemon[]) => Pokemon[]) => void;
+
+export const applyMoveEffects = async (
+  move: Move,
+  attacker: Pokemon,
+  defender: Pokemon,
+  setAttackerState: SetPokemonState,
+  setDefenderState: SetPokemonState,
+  addLog: (message: string) => void
+): Promise<void> => {
   if (!move.effect) return;
 
-  if (move.effect.chance && Math.random() > move.effect.chance) {
+  if (move.effect.chance !== undefined && Math.random() > move.effect.chance) {
     return;
   }
 
@@ -26,7 +60,7 @@ export const applyMoveEffects = async (move, attacker, defender, setAttackerStat
         const currentStage = updatedPokemon.statStages[sc.stat] || 0;
         const newStage = Math.max(-6, Math.min(6, currentStage + sc.change));
 
-        const statNamesKo = {
+        const statNamesKo: Record<string, string> = {
             attack: '공격', defense: '방어', spAttack: '특수공격', 
             spDefense: '특수방어', speed: '스피드', accuracy: '명중률', evasion: '회피율'
         };
@@ -63,19 +97,19 @@ export const applyMoveEffects = async (move, attacker, defender, setAttackerStat
       
       if (target.status) return newState;
 
-      if (move.effect.condition === 'poison' && (target.types.includes('독') || target.types.includes('강철'))) {
+      if (move.effect!.condition === 'poison' && (target.types.includes('독') || target.types.includes('강철'))) {
           return newState;
       }
-      if (move.effect.condition === 'burn' && target.types.includes('불꽃')) {
+      if (move.effect!.condition === 'burn' && target.types.includes('불꽃')) {
           return newState;
       }
 
-      const updatedPokemon = { ...target, status: move.effect.condition };
-      if (move.effect.condition === 'sleep') {
+      const updatedPokemon = { ...target, status: move.effect!.condition };
+      if (move.effect!.condition === 'sleep') {
         updatedPokemon.statusTurns = Math.floor(Math.random() * 3) + 1;
       }
       newState[pokeIndex] = updatedPokemon;
-      addLog(`${target.name}은(는) ${move.effect.condition}에 걸렸다!`);
+      addLog(`${target.name}은(는) ${move.effect!.condition}에 걸렸다!`);
       return newState;
     });
     await new Promise(resolve => setTimeout(resolve, 500));

@@ -1,4 +1,4 @@
-export const TYPE_COLORS_KO = {
+export const TYPE_COLORS_KO: Record<string, string> = {
   "노말": "#A8A77A",
   "불꽃": "#EE8130",
   "물": "#6390F0",
@@ -18,7 +18,7 @@ export const TYPE_COLORS_KO = {
   "페어리": "#D685AD",
 };
 
-export const TYPE_COLORS_EN = {
+export const TYPE_COLORS_EN: Record<string, string> = {
   "normal": "#A8A77A",
   "fire": "#EE8130",
   "water": "#6390F0",
@@ -38,7 +38,7 @@ export const TYPE_COLORS_EN = {
   "fairy": "#D685AD",
 };
 
-export const TYPE_MAP = {
+export const TYPE_MAP: Record<string, string> = {
   "normal": "노말",
   "fire": "불꽃",
   "water": "물",

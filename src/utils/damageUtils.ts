@@ -1,17 +1,46 @@
-// src/utils/damageUtils.js
+// src/utils/damageUtils.ts
 import { getTypeMultiplier } from './typeUtils';
 
-const STAGE_MULTIPLIERS = {
+interface Stats {
+  attack: number;
+  defense: number;
+  spAttack: number;
+  spDefense: number;
+}
+
+interface StatStages {
+  attack: number;
+  defense: number;
+  spAttack: number;
+  spDefense: number;
+}
+
+interface Pokemon {
+  types: string[];
+  typesEn: string[];
+  stats: Stats;
+  statStages: StatStages;
+  status?: string;
+}
+
+interface Move {
+  type: string;
+  category: string;
+  damageClass: 'physical' | 'special';
+  power: number;
+}
+
+const STAGE_MULTIPLIERS: Record<string, number> = {
   '-6': 2 / 8, '-5': 2 / 7, '-4': 2 / 6, '-3': 2 / 5, '-2': 2 / 4, '-1': 2 / 3,
   '0': 1,
   '1': 3 / 2, '2': 4 / 2, '3': 5 / 2, '4': 6 / 2, '5': 7 / 2, '6': 8 / 2,
 };
 
-export const getStatMultiplier = (stage) => {
-  return STAGE_MULTIPLIERS[stage] || 1;
+export const getStatMultiplier = (stage: number): number => {
+  return STAGE_MULTIPLIERS[String(stage)] || 1;
 };
 
-export const calculateDamage = (attacker, defender, move) => {
+export const calculateDamage = (attacker: Pokemon, defender: Pokemon, move: Move) => {
   const multiplier = getTypeMultiplier(move.type, defender.types);
   if (multiplier === 0) {
     return { damage: 0, multiplier: 0 };
