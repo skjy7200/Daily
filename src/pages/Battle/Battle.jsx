@@ -278,7 +278,6 @@ function Battle() {
   return (
     <div className="battle-container">
       <div className={`battle-field ${screenShake ? 'screen-shake' : ''}`}>
-        {/* 상대 체력바 (HUD) */}
         <div className={`status-bar opponent ${isIntro ? 'hidden' : ''}`}>
           <div className="status-info">
             <span className="name">{oppPokemon.name}</span>
@@ -316,7 +315,6 @@ function Battle() {
         {superEffectivePop === 'opponent' && <div className="super-effective-popup popup-opponent">효과가 굉장했다!</div>}
         {notEffectivePop === 'opponent' && <div className="not-effective-popup popup-opponent">효과가 별로인 듯하다...</div>}
 
-        {/* 아군 체력바 (HUD) */}
         <div className="status-bar player">
           <div className="status-info">
             <span className="name">{myPokemon.name}</span>

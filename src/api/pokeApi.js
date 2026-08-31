@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-// PokeAPI 기본 URL
 const BASE_URL = 'https://pokeapi.co/api/v2';
 
-// 메모리 캐싱을 위한 객체
 const cache = {
   stats: {},
   moves: {},
@@ -77,7 +75,7 @@ export const getMoveDetails = async (url) => {
       accuracy: data.accuracy || 100,
       pp: data.pp,
       type: data.type.name,
-      damageClass: data.damage_class.name // physical, special, status
+      damageClass: data.damage_class.name
     };
 
     cache.moves[url] = moveDetails;
