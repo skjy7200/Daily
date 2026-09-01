@@ -2,7 +2,29 @@ import axios from 'axios';
 
 const BASE_URL = 'https://pokeapi.co/api/v2';
 
-const cache = {
+interface PokemonStats {
+  hp: number;
+  attack: number;
+  defense: number;
+  speed: number;
+  spAttack: number;
+  spDefense: number;
+}
+
+interface MoveDetails {
+  name: string;
+  nameKo: string;
+  power: number;
+  accuracy: number;
+  pp: number;
+  type: string;
+  damageClass: string;
+}
+
+const cache: {
+  stats: Record<string, PokemonStats>;
+  moves: Record<string, MoveDetails>;
+} = {
   stats: {},
   moves: {},
 };
@@ -10,16 +32,16 @@ const cache = {
 /**
  * 포켓몬의 상세 정보(종족값)를 가져와 레벨 50 기준 실능으로 변환합니다.
  * @param {number|string} idOrName 포켓몬 ID 또는 영문 이름
- * @returns {Promise<Object>} 실능 객체 (hp, attack, defense, speed, spAttack, spDefense)
+ * @returns {Promise<PokemonStats>} 실능 객체 (hp, attack, defense, speed, spAttack, spDefense)
  */
-export const getPokemonStats = async (idOrName) => {
+export const getPokemonStats = async (idOrName: number | string): Promise<PokemonStats> => {
   if (cache.stats[idOrName]) return cache.stats[idOrName];
 
   try {
     const response = await axios.get(`${BASE_URL}/pokemon/${idOrName}`);
-    const baseStats = {};
+    const baseStats: Record<string, number> = {};
     
-    response.data.stats.forEach(stat => {
+    response.data.stats.forEach((stat: any) => {
       switch(stat.stat.name) {
         case 'hp': baseStats.hp = stat.base_stat; break;
         case 'attack': baseStats.attack = stat.base_stat; break;
@@ -35,7 +57,7 @@ export const getPokemonStats = async (idOrName) => {
     const iv = 31;
     const ev = 0;
 
-    const stats = {
+    const stats: PokemonStats = {
       hp: Math.floor((baseStats.hp * 2 + iv + Math.floor(ev / 4)) * level / 100) + level + 10,
       attack: Math.floor((baseStats.attack * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
       defense: Math.floor((baseStats.defense * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
@@ -44,7 +66,7 @@ export const getPokemonStats = async (idOrName) => {
       speed: Math.floor((baseStats.speed * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
     };
 
-    cache.stats[idOrName] = stats;
+    cache.stats[idOrName as string] = stats;
     return stats;
   } catch (error) {
     console.error(`Error fetching stats for ${idOrName}:`, error);
@@ -55,9 +77,9 @@ export const getPokemonStats = async (idOrName) => {
 /**
  * 기술의 상세 정보(위력, 타입, 한글 이름)를 가져옵니다.
  * @param {string} url 기술 상세 정보 URL (PokeAPI)
- * @returns {Promise<Object>} 기술 정보 객체 (power, type, nameKo, accuracy, pp)
+ * @returns {Promise<MoveDetails>} 기술 정보 객체 (power, type, nameKo, accuracy, pp)
  */
-export const getMoveDetails = async (url) => {
+export const getMoveDetails = async (url: string): Promise<MoveDetails> => {
   if (cache.moves[url]) return cache.moves[url];
 
   try {
@@ -65,10 +87,10 @@ export const getMoveDetails = async (url) => {
     const data = response.data;
 
     // 한글 이름 찾기
-    const nameEntry = data.names.find(n => n.language.name === 'ko');
+    const nameEntry = data.names.find((n: any) => n.language.name === 'ko');
     const nameKo = nameEntry ? nameEntry.name : data.name;
 
-    const moveDetails = {
+    const moveDetails: MoveDetails = {
       name: data.name,
       nameKo: nameKo,
       power: data.power || 0, // 위력이 없는 기술(변화기 등)은 0 처리
@@ -82,16 +104,16 @@ export const getMoveDetails = async (url) => {
     return moveDetails;
   } catch (error) {
     console.error(`Error fetching move details for ${url}:`, error);
-    return { nameKo: '몸통박치기', power: 40, accuracy: 100, type: 'normal', damageClass: 'physical' };
+    return { name: 'tackle', nameKo: '몸통박치기', power: 40, accuracy: 100, pp: 35, type: 'normal', damageClass: 'physical' };
   }
 };
 
 /**
  * 포켓몬 객체의 moves 배열(URL 포함)을 받아 상세 정보를 모두 채워 반환합니다.
- * @param {Array} moves 포켓몬의 기술 목록 [{name, url}, ...]
- * @returns {Promise<Array>} 상세 정보가 포함된 기술 목록
+ * @param {Array} moves 포켓몬의 기술 목록 [{name: string, url: string}, ...]
+ * @returns {Promise<MoveDetails[]>} 상세 정보가 포함된 기술 목록
  */
-export const fetchMoveDetailsForPokemon = async (moves) => {
+export const fetchMoveDetailsForPokemon = async (moves: {name: string, url: string}[]): Promise<MoveDetails[]> => {
   // 4개 기술만 가져오기 (이미 4개로 잘려있다고 가정하거나 여기서 자름)
   const targetMoves = moves.slice(0, 4);
   
@@ -104,7 +126,8 @@ export const fetchMoveDetailsForPokemon = async (moves) => {
       name: 'tackle',
       nameKo: '몸통박치기', 
       power: 40, 
-      accuracy: 100, 
+      accuracy: 100,
+      pp: 35,
       type: 'normal', 
       damageClass: 'physical' 
     });
