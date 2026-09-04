@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // src/utils/statusUtils.ts
 
 interface StatStages {

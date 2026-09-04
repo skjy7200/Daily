@@ -41,7 +41,7 @@ export const getPokemonStats = async (idOrName: number | string): Promise<Pokemo
     const response = await axios.get(`${BASE_URL}/pokemon/${idOrName}`);
     const baseStats: Record<string, number> = {};
     
-    response.data.stats.forEach((stat: any) => {
+    response.data.stats.forEach((stat: { stat: { name: string }, base_stat: number }) => {
       switch(stat.stat.name) {
         case 'hp': baseStats.hp = stat.base_stat; break;
         case 'attack': baseStats.attack = stat.base_stat; break;
@@ -87,7 +87,7 @@ export const getMoveDetails = async (url: string): Promise<MoveDetails> => {
     const data = response.data;
 
     // 한글 이름 찾기
-    const nameEntry = data.names.find((n: any) => n.language.name === 'ko');
+    const nameEntry = data.names.find((n: { language: { name: string }, name: string }) => n.language.name === 'ko');
     const nameKo = nameEntry ? nameEntry.name : data.name;
 
     const moveDetails: MoveDetails = {
