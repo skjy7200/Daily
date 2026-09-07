@@ -17,6 +17,7 @@ interface MoveDetails {
   power: number;
   accuracy: number;
   pp: number;
+  currentPP: number;
   type: string;
   damageClass: string;
 }
@@ -96,6 +97,7 @@ export const getMoveDetails = async (url: string): Promise<MoveDetails> => {
       power: data.power || 0, // 위력이 없는 기술(변화기 등)은 0 처리
       accuracy: data.accuracy || 100,
       pp: data.pp,
+      currentPP: data.pp,
       type: data.type.name,
       damageClass: data.damage_class.name
     };
@@ -104,7 +106,7 @@ export const getMoveDetails = async (url: string): Promise<MoveDetails> => {
     return moveDetails;
   } catch (error) {
     console.error(`Error fetching move details for ${url}:`, error);
-    return { name: 'tackle', nameKo: '몸통박치기', power: 40, accuracy: 100, pp: 35, type: 'normal', damageClass: 'physical' };
+    return { name: 'tackle', nameKo: '몸통박치기', power: 40, accuracy: 100, pp: 35, currentPP: 35, type: 'normal', damageClass: 'physical' };
   }
 };
 
@@ -128,6 +130,7 @@ export const fetchMoveDetailsForPokemon = async (moves: {name: string, url: stri
       power: 40, 
       accuracy: 100,
       pp: 35,
+      currentPP: 35,
       type: 'normal', 
       damageClass: 'physical' 
     });

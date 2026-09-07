@@ -110,16 +110,32 @@ function Battle() {
     const oppSpeed = oppPokemon.status === 'paralysis' ? oppPokemon.stats.speed / 2 : oppPokemon.stats.speed;
     const myFirst = mySpeed >= oppSpeed;
 
+    const getUsableMove = (pokemon) => {
+        const usableMoves = pokemon.moves.filter(m => m.currentPP > 0);
+        if (usableMoves.length > 0) {
+            return usableMoves[Math.floor(Math.random() * usableMoves.length)];
+        }
+        return { 
+            name: 'struggle', 
+            nameKo: '발버둥', 
+            power: 50, 
+            accuracy: 100, 
+            pp: 1, 
+            currentPP: 1, 
+            type: 'normal', 
+            damageClass: 'physical',
+            isStruggle: true
+        };
+    };
+
     if (myFirst) {
       const oppHp = await executeTurn(move, true);
       if (oppHp > 0) {
-        const currentOppPokemon = battleOpponentRef.current[oppCurrentIdxRef.current];
-        const oppMove = currentOppPokemon.moves[Math.floor(Math.random() * currentOppPokemon.moves.length)];
+        const oppMove = getUsableMove(battleOpponentRef.current[oppCurrentIdxRef.current]);
         await executeTurn(oppMove, false);
       }
     } else {
-      const currentOppPokemon = battleOpponentRef.current[oppCurrentIdxRef.current];
-      const oppMove = currentOppPokemon.moves[Math.floor(Math.random() * currentOppPokemon.moves.length)];
+      const oppMove = getUsableMove(battleOpponentRef.current[oppCurrentIdxRef.current]);
       const myHp = await executeTurn(oppMove, false);
       if (myHp > 0) {
         await executeTurn(move, true);
@@ -162,8 +178,23 @@ function Battle() {
     const setDefenderState = isPlayerAttacking ? setBattleOpponent : setBattleTeam;
     const attackerIdx = isPlayerAttacking ? myCurrentIdxRef.current : oppCurrentIdxRef.current;
 
-    let attackerCanAttack = true;
+    // Deduct PP if not Struggle
+    if (!move.isStruggle) {
+      setAttackerState(prev => {
+        const n = [...prev];
+        const currentAttacker = { ...n[attackerIdx] };
+        const moveIdx = currentAttacker.moves.findIndex(m => m.name === move.name);
+        if (moveIdx !== -1) {
+            currentAttacker.moves = [...currentAttacker.moves];
+            currentAttacker.moves[moveIdx].currentPP -= 1;
+        }
+        n[attackerIdx] = currentAttacker;
+        return n;
+      });
+    }
 
+    let attackerCanAttack = true;
+  // ... rest of the function remains the same
     setAttackerState(prev => {
         const n = [...prev];
         const currentAttacker = { ...n[attackerIdx] };
@@ -364,17 +395,26 @@ function Battle() {
           {battleMode === 'attack' && (
             <div className="move-list-container">
               <div className="move-list">
-                {myPokemon.moves.map((move) => (
+                {myPokemon.moves.map((move, index) => (
                   <button
-                    key={move.name}
+                    key={index}
                     className="move-button"
                     onMouseEnter={() => setHoveredMove(move)}
                     onMouseLeave={() => setHoveredMove(null)}
-                    onClick={() => handleMoveSelection(move)}
-                    disabled={isProcessing || myPokemon.currentHp === 0}
+                    onClick={() => {
+                        const newTeam = [...battleTeam];
+                        const currentPokemon = { ...newTeam[myCurrentIdx] };
+                        const newMoves = [...currentPokemon.moves];
+                        newMoves[index].currentPP -= 1;
+                        currentPokemon.moves = newMoves;
+                        newTeam[myCurrentIdx] = currentPokemon;
+                        setBattleTeam(newTeam);
+                        handleMoveSelection(move);
+                    }}
+                    disabled={isProcessing || myPokemon.currentHp === 0 || move.currentPP <= 0}
                     style={{ borderLeft: `10px solid ${typeColors[move.type] || '#ccc'}` }}
                   >
-                    <span>{move.nameKo}</span>
+                    <span>{move.nameKo} ({move.currentPP}/{move.pp})</span>
                     <span 
                       className="move-type-badge" 
                       style={{ 
