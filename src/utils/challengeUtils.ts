@@ -1,7 +1,5 @@
 // src/utils/challengeUtils.ts
 
-import pokemonData from '../assets/pokemonData.json';
-
 interface Pokemon {
   id: number;
   name: string;
@@ -42,7 +40,8 @@ const getVirtualDate = (): Date => {
   return now;
 };
 
-export const generateDailyChallenge = () => {
+export const generateDailyChallenge = async () => {
+  const pokemonData = (await import('../assets/pokemonData.json')).default;
   const now = getVirtualDate(); 
   const offset = now.getTimezoneOffset() * 60 * 1000;
   const kstOffset = 9 * 60 * 60 * 1000;

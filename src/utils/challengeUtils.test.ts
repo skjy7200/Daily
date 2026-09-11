@@ -14,13 +14,13 @@ describe('generateDailyChallenge', () => {
     vi.useRealTimers();
   });
 
-  it('should generate the same challenge for the same date', () => {
+  it('should generate the same challenge for the same date', async () => {
     // 시간을 특정 날짜로 고정
     const testDate = new Date('2024-07-31T10:00:00Z');
     vi.setSystemTime(testDate);
 
-    const challenge1 = generateDailyChallenge();
-    const challenge2 = generateDailyChallenge();
+    const challenge1 = await generateDailyChallenge();
+    const challenge2 = await generateDailyChallenge();
 
     // 생성된 챌린지 객체가 깊은 수준까지 동일한지 확인
     expect(challenge1).toEqual(challenge2);
@@ -30,16 +30,16 @@ describe('generateDailyChallenge', () => {
     expect(challenge1.rentalPokemon.map(p => p.id).sort()).toEqual(challenge2.rentalPokemon.map(p => p.id).sort());
   });
 
-  it('should generate a different challenge for a different date', () => {
+  it('should generate a different challenge for a different date', async () => {
     // 첫 번째 날짜로 시간 고정
     const date1 = new Date('2024-07-31T10:00:00Z');
     vi.setSystemTime(date1);
-    const challenge1 = generateDailyChallenge();
+    const challenge1 = await generateDailyChallenge();
 
     // 다른 날짜로 시간 변경
     const date2 = new Date('2024-08-01T10:00:00Z');
     vi.setSystemTime(date2);
-    const challenge2 = generateDailyChallenge();
+    const challenge2 = await generateDailyChallenge();
 
     // 두 챌린지가 다른지 확인
     expect(challenge1).not.toEqual(challenge2);
@@ -50,17 +50,17 @@ describe('generateDailyChallenge', () => {
     expect(isLeaderDifferent || isRentalsDifferent).toBe(true);
   });
 
-  it('should be affected by debug_day_offset in localStorage', () => {
+  it('should be affected by debug_day_offset in localStorage', async () => {
     // 시간을 특정 날짜로 고정
     const testDate = new Date('2024-07-31T10:00:00Z');
     vi.setSystemTime(testDate);
     
     // localStorage 설정이 없을 때의 챌린지
-    const challengeWithoutOffset = generateDailyChallenge();
+    const challengeWithoutOffset = await generateDailyChallenge();
 
     // localStorage에 offset 설정
     localStorage.setItem('debug_day_offset', '1');
-    const challengeWithOffset = generateDailyChallenge();
+    const challengeWithOffset = await generateDailyChallenge();
 
     // 두 챌린지가 다른지 확인
     expect(challengeWithoutOffset).not.toEqual(challengeWithOffset);
@@ -68,7 +68,7 @@ describe('generateDailyChallenge', () => {
     // offset을 적용한 챌린지가 다음 날의 챌린지와 동일한지 확인
     vi.setSystemTime(new Date('2024-08-01T10:00:00Z'));
     localStorage.clear(); // offset 제거
-    const nextDayChallenge = generateDailyChallenge();
+    const nextDayChallenge = await generateDailyChallenge();
 
     expect(challengeWithOffset).toEqual(nextDayChallenge);
   });

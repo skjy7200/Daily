@@ -14,34 +14,37 @@ function TeamSelection() {
   const [selectedTeam, setSelectedTeam] = useState([]);
 
   useEffect(() => {
-    const { rentalPokemon, leader, leaderSprite, leaderPokemon } = generateDailyChallenge();
+    const initChallenge = async () => {
+      const { rentalPokemon, leader, leaderSprite, leaderPokemon } = await generateDailyChallenge();
 
-    const calculateStats = (baseStats) => {
-      const level = 50;
-      const iv = 31;
-      const ev = 0;
-      return {
-        hp: Math.floor((baseStats.hp * 2 + iv + Math.floor(ev / 4)) * level / 100) + level + 10,
-        attack: Math.floor((baseStats.attack * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
-        defense: Math.floor((baseStats.defense * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
-        spAttack: Math.floor((baseStats.spAttack * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
-        spDefense: Math.floor((baseStats.spDefense * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
-        speed: Math.floor((baseStats.speed * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+      const calculateStats = (baseStats) => {
+        const level = 50;
+        const iv = 31;
+        const ev = 0;
+        return {
+          hp: Math.floor((baseStats.hp * 2 + iv + Math.floor(ev / 4)) * level / 100) + level + 10,
+          attack: Math.floor((baseStats.attack * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+          defense: Math.floor((baseStats.defense * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+          spAttack: Math.floor((baseStats.spAttack * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+          spDefense: Math.floor((baseStats.spDefense * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+          speed: Math.floor((baseStats.speed * 2 + iv + Math.floor(ev / 4)) * level / 100) + 5,
+        };
       };
+
+      const processPokemon = (list) => list.map(p => {
+        const realStats = calculateStats(p.stats);
+        return {
+          ...p,
+          stats: realStats,
+          maxHp: realStats.hp,
+          currentHp: realStats.hp
+        };
+      });
+
+      setRentalPokemon(processPokemon(rentalPokemon));
+      setLeaderData({ name: leader, sprite: leaderSprite, pokemon: processPokemon(leaderPokemon) });
     };
-
-    const processPokemon = (list) => list.map(p => {
-      const realStats = calculateStats(p.stats);
-      return {
-        ...p,
-        stats: realStats,
-        maxHp: realStats.hp,
-        currentHp: realStats.hp
-      };
-    });
-
-    setRentalPokemon(processPokemon(rentalPokemon));
-    setLeaderData({ name: leader, sprite: leaderSprite, pokemon: processPokemon(leaderPokemon) });
+    initChallenge();
   }, []);
 
   const toggleSelect = (pokemon) => {

@@ -11,14 +11,17 @@ function Main() {
   const [countdown, setCountdown] = useState(getCountdownToMidnightKST());
 
   useEffect(() => {
-    setDailyChallenge(generateDailyChallenge());
+    const initChallenge = async () => {
+      setDailyChallenge(await generateDailyChallenge());
+    };
+    initChallenge();
 
-    const timer = setInterval(() => {
+    const timer = setInterval(async () => {
       const newCountdown = getCountdownToMidnightKST();
       setCountdown(newCountdown);
 
       if (newCountdown.hours === 0 && newCountdown.minutes === 0 && newCountdown.seconds === 0) {
-        setDailyChallenge(generateDailyChallenge());
+        setDailyChallenge(await generateDailyChallenge());
       }
     }, 1000);
 
