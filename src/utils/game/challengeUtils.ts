@@ -41,7 +41,7 @@ const getVirtualDate = (): Date => {
 };
 
 export const generateDailyChallenge = async () => {
-  const pokemonData = (await import('../assets/pokemonData.json')).default;
+  const pokemonData = (await import('../../assets/pokemonData.json')).default;
   const now = getVirtualDate(); 
   const offset = now.getTimezoneOffset() * 60 * 1000;
   const kstOffset = 9 * 60 * 60 * 1000;

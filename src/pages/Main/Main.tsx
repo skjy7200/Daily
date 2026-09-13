@@ -1,8 +1,8 @@
 // src/pages/Main.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { generateDailyChallenge, getCountdownToMidnightKST } from '../../utils/challengeUtils';
-import { TYPE_COLORS_KO as typeColors } from '../../utils/constants';
+import { generateDailyChallenge, getCountdownToMidnightKST } from '../../utils/game/challengeUtils';
+import { TYPE_COLORS_KO as typeColors } from '../../utils/pokemon/constants';
 import './Main.css';
 
 function Main() {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useBattleStore from '../../store/battleStore';
-import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects, checkHit } from '../../utils/battleUtils';
-import { TYPE_COLORS_EN as typeColors, TYPE_MAP as typeMap } from '../../utils/constants';
+import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects, checkHit } from '../../utils/battle/battleUtils';
+import { TYPE_COLORS_EN as typeColors, TYPE_MAP as typeMap } from '../../utils/pokemon/constants';
 import './Battle.css';
 
 function Battle() {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useBattleStore from '../../store/battleStore';
-import { getCountdownToMidnightKST } from '../../utils/challengeUtils';
+import { getCountdownToMidnightKST } from '../../utils/game/challengeUtils';
 import './Result.css';
 
 function Result() {

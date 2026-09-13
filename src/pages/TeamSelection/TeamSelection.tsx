@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { generateDailyChallenge } from '../../utils/challengeUtils';
+import { generateDailyChallenge } from '../../utils/game/challengeUtils';
 import useBattleStore from '../../store/battleStore';
-import { TYPE_COLORS_KO as typeColors } from '../../utils/constants';
+import { TYPE_COLORS_KO as typeColors } from '../../utils/pokemon/constants';
 import './TeamSelection.css';
 
 function TeamSelection() {
