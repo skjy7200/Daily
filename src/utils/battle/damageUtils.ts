@@ -16,6 +16,7 @@ interface StatStages {
 }
 
 interface Pokemon {
+  level: number;
   types: string[];
   typesEn: string[];
   stats: Stats;
@@ -40,14 +41,14 @@ export const getStatMultiplier = (stage: number): number => {
   return STAGE_MULTIPLIERS[String(stage)] || 1;
 };
 
-export const calculateDamage = (attacker: Pokemon, defender: Pokemon, move: Move) => {
+export const calculateDamage = (attacker: Pokemon, defender: Pokemon, move: Move, randomFactor: number = Math.random()) => {
   const multiplier = getTypeMultiplier(move.type, defender.types);
   if (multiplier === 0) {
     return { damage: 0, multiplier: 0 };
   }
 
   if (move.category === 'damage+fixed') {
-    return { damage: 50, multiplier: multiplier };
+    return { damage: attacker.level, multiplier: multiplier };
   }
 
   const attackMultiplier = getStatMultiplier(attacker.statStages.attack);
@@ -65,11 +66,11 @@ export const calculateDamage = (attacker: Pokemon, defender: Pokemon, move: Move
     ? Math.floor(defender.stats.spDefense * spDefenseMultiplier)
     : Math.floor(defender.stats.defense * defenseMultiplier);
   
-  const baseDamage = Math.floor((( (2 * 50 / 5 + 2) * move.power * (attackStat / defenseStat) ) / 50) + 2);
+  const baseDamage = Math.floor((( (2 * attacker.level / 5 + 2) * move.power * (attackStat / defenseStat) ) / 50) + 2);
   
   const stab = attacker.typesEn.includes(move.type) ? 1.5 : 1;
   
-  const finalDamage = Math.floor(baseDamage * multiplier * stab * (0.85 + Math.random() * 0.15));
+  const finalDamage = Math.floor(baseDamage * multiplier * stab * (0.85 + randomFactor * 0.15));
   
   return { damage: finalDamage, multiplier };
 };
