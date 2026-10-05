@@ -1,12 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { create } from 'zustand';
-
-interface Pokemon {
-  // Add necessary fields for Pokemon here
-  id: string;
-  name: string;
-  // ...
-}
+import { Pokemon } from '../types';
 
 interface BattleState {
   userTeam: Pokemon[];

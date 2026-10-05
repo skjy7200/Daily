@@ -1,9 +1,5 @@
-// src/utils/challengeUtils.ts
-
-interface Pokemon {
-  id: number;
-  name: string;
-}
+// src/utils/game/challengeUtils.ts
+import { Pokemon, DailyChallenge } from '../../types';
 
 const GYM_LEADERS = [
   "웅", "이슬", "마티스", "민화", "독수", "초련", "강연", "비주기"
@@ -40,8 +36,8 @@ const getVirtualDate = (): Date => {
   return now;
 };
 
-export const generateDailyChallenge = async () => {
-  const pokemonData = (await import('../../assets/pokemonData.json')).default;
+export const generateDailyChallenge = async (): Promise<DailyChallenge> => {
+  const pokemonData = (await import('../../assets/pokemonData.json')).default as Pokemon[];
   const now = getVirtualDate(); 
   const offset = now.getTimezoneOffset() * 60 * 1000;
   const kstOffset = 9 * 60 * 60 * 1000;
@@ -65,15 +61,31 @@ export const generateDailyChallenge = async () => {
   const leaderSprite = GYM_LEADER_SPRITES[leader];
 
   const leaderPokemonIds = GYM_LEADER_TEAMS[leader];
-  const leaderPokemon = (pokemonData as Pokemon[]).filter(p => leaderPokemonIds.includes(p.id))
+  const leaderPokemon = pokemonData.filter(p => leaderPokemonIds.includes(p.id))
+    .map(p => ({
+      ...p,
+      level: 50,
+      maxHp: p.stats.hp * 2 + 10,
+      currentHp: p.stats.hp * 2 + 10,
+      statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 },
+      status: null
+    }))
     .sort((a, b) => leaderPokemonIds.indexOf(a.id) - leaderPokemonIds.indexOf(b.id));
 
-  const rentalPool = (pokemonData as Pokemon[]).filter(p => !leaderPokemonIds.includes(p.id));
+  const rentalPool = [...pokemonData.filter(p => !leaderPokemonIds.includes(p.id))];
   
-  const rentalPokemon = [];
+  const rentalPokemon: Pokemon[] = [];
   for (let i = 0; i < 6; i++) {
     const index = Math.floor(random() * rentalPool.length);
-    rentalPokemon.push(rentalPool[index]);
+    const p = rentalPool[index];
+    rentalPokemon.push({
+      ...p,
+      level: 50,
+      maxHp: p.stats.hp * 2 + 10,
+      currentHp: p.stats.hp * 2 + 10,
+      statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 },
+      status: null
+    });
     rentalPool.splice(index, 1);
   }
 

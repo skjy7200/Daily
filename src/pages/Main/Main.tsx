@@ -1,18 +1,20 @@
-// src/pages/Main.jsx
+// src/pages/Main.tsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateDailyChallenge, getCountdownToMidnightKST } from '../../utils/game/challengeUtils';
 import { TYPE_COLORS_KO as typeColors } from '../../utils/pokemon/constants';
+import { DailyChallenge } from '../../types';
 import './Main.css';
 
 function Main() {
   const navigate = useNavigate();
-  const [dailyChallenge, setDailyChallenge] = useState(null);
+  const [dailyChallenge, setDailyChallenge] = useState<DailyChallenge | null>(null);
   const [countdown, setCountdown] = useState(getCountdownToMidnightKST());
 
   useEffect(() => {
     const initChallenge = async () => {
-      setDailyChallenge(await generateDailyChallenge());
+      const challenge = await generateDailyChallenge();
+      setDailyChallenge(challenge);
     };
     initChallenge();
 
@@ -21,7 +23,8 @@ function Main() {
       setCountdown(newCountdown);
 
       if (newCountdown.hours === 0 && newCountdown.minutes === 0 && newCountdown.seconds === 0) {
-        setDailyChallenge(await generateDailyChallenge());
+        const challenge = await generateDailyChallenge();
+        setDailyChallenge(challenge);
       }
     }, 1000);
 
@@ -51,7 +54,7 @@ function Main() {
         <div className="leader-pokemon-list">
           {leaderPokemon.map((p, index) => (
             <div key={index} className="pokemon-card">
-              <img src={p.image} alt={p.name} className="pokemon-image" />
+              <img src={p.image || ''} alt={p.name} className="pokemon-image" />
               <h3>{p.name}</h3>
               <div className="pokemon-types">
                 {p.types.map((type) => (

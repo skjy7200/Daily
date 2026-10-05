@@ -3,32 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import useBattleStore from '../../store/battleStore';
 import { calculateDamage, canAttack, processEndOfTurnStatus, applyMoveEffects, checkHit } from '../../utils/battle/battleUtils';
 import { TYPE_COLORS_EN as typeColors, TYPE_MAP as typeMap } from '../../utils/pokemon/constants';
+import { Pokemon, Move } from '../../types';
 import './Battle.css';
 
 function Battle() {
   const navigate = useNavigate();
   const { userTeam, opponentTeam, leaderName, leaderSprite, setBattleOutcome } = useBattleStore();
 
-  const [myCurrentIdx, setMyCurrentIdx] = useState(0);
-  const [oppCurrentIdx, setOppCurrentIdx] = useState(0);
-  const [battleTeam, setBattleTeam] = useState([]);
-  const [battleOpponent, setBattleOpponent] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isIntro, setIsIntro] = useState(true);
-  const [hoveredMove, setHoveredMove] = useState(null);
-  const [screenShake, setScreenShake] = useState(false);
-  const [battleMode, setBattleMode] = useState('main');
+  const [myCurrentIdx, setMyCurrentIdx] = useState<number>(0);
+  const [oppCurrentIdx, setOppCurrentIdx] = useState<number>(0);
+  const [battleTeam, setBattleTeam] = useState<Pokemon[]>([]);
+  const [battleOpponent, setBattleOpponent] = useState<Pokemon[]>([]);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isIntro, setIsIntro] = useState<boolean>(true);
+  const [hoveredMove, setHoveredMove] = useState<Move | null>(null);
+  const [screenShake, setScreenShake] = useState<boolean>(false);
+  const [battleMode, setBattleMode] = useState<string>('main');
 
-  const [myAnim, setMyAnim] = useState('');
-  const [oppAnim, setOppAnim] = useState('');
-  const [superEffectivePop, setSuperEffectivePop] = useState(null);
-  const [notEffectivePop, setNotEffectivePop] = useState(null);
+  const [myAnim, setMyAnim] = useState<string>('');
+  const [oppAnim, setOppAnim] = useState<string>('');
+  const [superEffectivePop, setSuperEffectivePop] = useState<string | null>(null);
+  const [notEffectivePop, setNotEffectivePop] = useState<string | null>(null);
 
-  const battleTeamRef = useRef([]);
-  const battleOpponentRef = useRef([]);
-  const myCurrentIdxRef = useRef(0);
-  const oppCurrentIdxRef = useRef(0);
+  const battleTeamRef = useRef<Pokemon[]>([]);
+  const battleOpponentRef = useRef<Pokemon[]>([]);
+  const myCurrentIdxRef = useRef<number>(0);
+  const oppCurrentIdxRef = useRef<number>(0);
 
   useEffect(() => {
     battleTeamRef.current = battleTeam;
@@ -52,8 +53,8 @@ function Battle() {
       return;
     }
 
-    const initialMyTeam = userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } }));
-    const initialOppTeam = opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } }));
+    const initialMyTeam: Pokemon[] = userTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } }));
+    const initialOppTeam: Pokemon[] = opponentTeam.map(p => ({ ...p, currentHp: p.maxHp, status: null, statusTurns: 0, statStages: { attack: 0, defense: 0, spAttack: 0, spDefense: 0, speed: 0, accuracy: 0, evasion: 0 } }));
 
     setBattleTeam(initialMyTeam);
     setBattleOpponent(initialOppTeam);
@@ -71,14 +72,14 @@ function Battle() {
   const myPokemon = battleTeam[myCurrentIdx];
   const oppPokemon = battleOpponent[oppCurrentIdx];
 
-  const getHpColor = (current, max) => {
+  const getHpColor = (current: number, max: number): string => {
     const ratio = current / max;
     if (ratio > 0.5) return '#4cc42a';
     if (ratio > 0.2) return '#f1c40f';
     return '#e74c3c';
   };
 
-  const addLog = (msg) => {
+  const addLog = (msg: string) => {
     setLogs(prev => [msg, ...prev].slice(0, 10));
   };
 
@@ -87,13 +88,13 @@ function Battle() {
     const currentMyPokemon = battleTeamRef.current[myCurrentIdxRef.current];
     const currentOppPokemon = battleOpponentRef.current[oppCurrentIdxRef.current];
     
-    processEndOfTurnStatus(currentMyPokemon, setBattleTeam, addLog);
+    if (currentMyPokemon) processEndOfTurnStatus(currentMyPokemon, setBattleTeam, addLog);
     await new Promise(resolve => setTimeout(resolve, 500));
-    processEndOfTurnStatus(currentOppPokemon, setBattleOpponent, addLog);
+    if (currentOppPokemon) processEndOfTurnStatus(currentOppPokemon, setBattleOpponent, addLog);
     await new Promise(resolve => setTimeout(resolve, 500));
   };
   
-  const getLogClass = (log) => {
+  const getLogClass = (log: string): string => {
     if (log.includes('효과가 굉장했다')) return 'log-super-effective';
     if (log.includes('효과가 별로')) return 'log-not-effective';
     if (log.includes('쓰러졌다')) return 'log-faint';
@@ -101,7 +102,7 @@ function Battle() {
     return '';
   };
 
-  const handleMoveSelection = async (move) => {
+  const handleMoveSelection = async (move: Move) => {
     if (isProcessing || isIntro || !myPokemon || !oppPokemon) return;
     setIsProcessing(true);
     setBattleMode('main');
@@ -110,7 +111,7 @@ function Battle() {
     const oppSpeed = oppPokemon.status === 'paralysis' ? oppPokemon.stats.speed / 2 : oppPokemon.stats.speed;
     const myFirst = mySpeed >= oppSpeed;
 
-    const getUsableMove = (pokemon) => {
+    const getUsableMove = (pokemon: Pokemon): Move => {
         const usableMoves = pokemon.moves.filter(m => m.currentPP > 0);
         if (usableMoves.length > 0) {
             return usableMoves[Math.floor(Math.random() * usableMoves.length)];
@@ -124,7 +125,8 @@ function Battle() {
             currentPP: 1, 
             type: 'normal', 
             damageClass: 'physical',
-            isStruggle: true
+            category: 'damage',
+            effect: null
         };
     };
 
@@ -146,7 +148,7 @@ function Battle() {
     setIsProcessing(false);
   };
 
-  const handleSwitch = async (newIdx) => {
+  const handleSwitch = async (newIdx: number) => {
     if (isProcessing || isIntro || newIdx === myCurrentIdx || battleTeam[newIdx].currentHp <= 0) return;
     setIsProcessing(true);
     setBattleMode('main');
@@ -170,7 +172,7 @@ function Battle() {
     setIsProcessing(false);
   };
 
-  const executeTurn = async (move, isPlayerAttacking) => {
+  const executeTurn = async (move: Move, isPlayerAttacking: boolean): Promise<number> => {
     const attacker = isPlayerAttacking ? battleTeamRef.current[myCurrentIdxRef.current] : battleOpponentRef.current[oppCurrentIdxRef.current];
     const defender = isPlayerAttacking ? battleOpponentRef.current[oppCurrentIdxRef.current] : battleTeamRef.current[myCurrentIdxRef.current];
 
@@ -179,7 +181,7 @@ function Battle() {
     const attackerIdx = isPlayerAttacking ? myCurrentIdxRef.current : oppCurrentIdxRef.current;
 
     // Deduct PP if not Struggle
-    if (!move.isStruggle) {
+    if (move.name !== 'struggle') {
       setAttackerState(prev => {
         const n = [...prev];
         const currentAttacker = { ...n[attackerIdx] };
@@ -194,7 +196,6 @@ function Battle() {
     }
 
     let attackerCanAttack = true;
-  // ... rest of the function remains the same
     setAttackerState(prev => {
         const n = [...prev];
         const currentAttacker = { ...n[attackerIdx] };
@@ -223,8 +224,8 @@ function Battle() {
       return defender.currentHp;
     }
 
-    let updatedDefender;
-    if (move.power > 0) {
+    let updatedDefender: Pokemon;
+    if (move.power !== null && move.power > 0) {
       const { damage, multiplier } = calculateDamage(attacker, defender, move);
       const newHp = Math.max(0, defender.currentHp - damage);
       updatedDefender = { ...defender, currentHp: newHp };
@@ -300,7 +301,7 @@ function Battle() {
           navigate('/result');
         }
       }
-    }
+    };
     if(!isProcessing) checkFainted();
   }, [battleOpponent, battleTeam, myCurrentIdx, oppCurrentIdx, myPokemon, oppPokemon, navigate, isProcessing, leaderName, setBattleOutcome]);
 
@@ -336,7 +337,7 @@ function Battle() {
             />
           ) : (
             <img 
-              src={oppPokemon.image} 
+              src={oppPokemon.image || ''} 
               alt={oppPokemon.name} 
               className={`pokemon-sprite ${oppAnim ? `anim-${oppAnim}` : ''} anim-pokemon-appear`} 
             />
@@ -365,7 +366,7 @@ function Battle() {
         </div>
 
         <div className="pokemon-area player">
-          <img src={myPokemon.image_back || myPokemon.image} alt={myPokemon.name} className={`pokemon-sprite ${myAnim ? `anim-${myAnim}` : ''}`} />
+          <img src={myPokemon.image_back || myPokemon.image || ''} alt={myPokemon.name} className={`pokemon-sprite ${myAnim ? `anim-${myAnim}` : ''}`} />
         </div>
 
         {superEffectivePop === 'player' && <div className="super-effective-popup popup-player">효과가 굉장했다!</div>}
@@ -418,7 +419,7 @@ function Battle() {
                     <span 
                       className="move-type-badge" 
                       style={{ 
-                        backgroundColor: typeColors[move.type],
+                        backgroundColor: typeColors[move.type] || '#777',
                         fontSize: '0.7rem',
                         padding: '2px 6px',
                         borderRadius: '4px',
@@ -426,7 +427,7 @@ function Battle() {
                         textShadow: '1px 1px 1px rgba(0,0,0,0.3)'
                       }}
                     >
-                      {typeMap[move.type]}
+                      {typeMap[move.type] || move.type}
                     </span>
                   </button>
                 ))}
@@ -445,7 +446,7 @@ function Battle() {
                     onClick={() => handleSwitch(idx)}
                     disabled={isProcessing || idx === myCurrentIdx || p.currentHp === 0}
                   >
-                    <img src={p.image} alt={p.name} />
+                    <img src={p.image || ''} alt={p.name} />
                     <div className="switch-info">
                       <span className="name">{p.name}</span>
                       <div className="mini-hp-bar">
@@ -470,12 +471,13 @@ function Battle() {
           {hoveredMove && battleMode === 'attack' ? (
             <div className="move-details">
               <h3>{hoveredMove.nameKo}</h3>
-              <p>타입: <span style={{color: typeColors[hoveredMove.type]}}>{typeMap[hoveredMove.type]}</span></p>
+              <p>타입: <span style={{color: typeColors[hoveredMove.type] || '#000'}}>{typeMap[hoveredMove.type] || hoveredMove.type}</span></p>
               <p>위력: {hoveredMove.power || '—'}</p>
               <p>명중률: {hoveredMove.accuracy || '—'}</p>
               <p>분류: {hoveredMove.damageClass === 'physical' ? '물리' : '특수'}</p>
             </div>
-          ) : (            logs.map((log, i) => (
+          ) : (
+            logs.map((log, i) => (
               <p key={i} className={getLogClass(log)}>{log}</p>
             ))
           )}

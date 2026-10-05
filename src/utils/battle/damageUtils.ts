@@ -1,35 +1,6 @@
-// src/utils/damageUtils.ts
+// src/utils/battle/damageUtils.ts
+import { Pokemon, Move } from '../../types';
 import { getTypeMultiplier } from '../pokemon/typeUtils';
-
-interface Stats {
-  attack: number;
-  defense: number;
-  spAttack: number;
-  spDefense: number;
-}
-
-interface StatStages {
-  attack: number;
-  defense: number;
-  spAttack: number;
-  spDefense: number;
-}
-
-interface Pokemon {
-  level: number;
-  types: string[];
-  typesEn: string[];
-  stats: Stats;
-  statStages: StatStages;
-  status?: string;
-}
-
-interface Move {
-  type: string;
-  category: string;
-  damageClass: 'physical' | 'special';
-  power: number;
-}
 
 const STAGE_MULTIPLIERS: Record<string, number> = {
   '-6': 2 / 8, '-5': 2 / 7, '-4': 2 / 6, '-3': 2 / 5, '-2': 2 / 4, '-1': 2 / 3,
@@ -51,26 +22,26 @@ export const calculateDamage = (attacker: Pokemon, defender: Pokemon, move: Move
     return { damage: attacker.level, multiplier: multiplier };
   }
 
-  const attackMultiplier = getStatMultiplier(attacker.statStages.attack);
-  const defenseMultiplier = getStatMultiplier(defender.statStages.defense);
-  const spAttackMultiplier = getStatMultiplier(attacker.statStages.spAttack);
-  const spDefenseMultiplier = getStatMultiplier(defender.statStages.spDefense);
+  const attackMultiplier = getStatMultiplier(attacker.statStages.attack || 0);
+  const defenseMultiplier = getStatMultiplier(defender.statStages.defense || 0);
+  const spAttackMultiplier = getStatMultiplier(attacker.statStages.spAttack || 0);
+  const spDefenseMultiplier = getStatMultiplier(defender.statStages.spDefense || 0);
 
   const burnModifier = (attacker.status === 'burn' && move.damageClass === 'physical') ? 0.5 : 1;
 
-  const attackStat = move.damageClass === 'special' 
-    ? Math.floor(attacker.stats.spAttack * spAttackMultiplier)
-    : Math.floor(attacker.stats.attack * attackMultiplier * burnModifier);
-    
-  const defenseStat = move.damageClass === 'special' 
-    ? Math.floor(defender.stats.spDefense * spDefenseMultiplier)
-    : Math.floor(defender.stats.defense * defenseMultiplier);
-  
-  const baseDamage = Math.floor((( (2 * attacker.level / 5 + 2) * move.power * (attackStat / defenseStat) ) / 50) + 2);
-  
-  const stab = attacker.typesEn.includes(move.type) ? 1.5 : 1;
-  
+  const attackStat = move.damageClass === 'special'
+    ? Math.floor((attacker.stats.spAttack || 0) * spAttackMultiplier * burnModifier)
+    : Math.floor((attacker.stats.attack || 0) * attackMultiplier * burnModifier);
+
+  const defenseStat = move.damageClass === 'special'
+    ? Math.floor((defender.stats.spDefense || 0) * spDefenseMultiplier)
+    : Math.floor((defender.stats.defense || 0) * defenseMultiplier);
+
+  const baseDamage = Math.floor((( (2 * attacker.level / 5 + 2) * (move.power || 0) * (attackStat / defenseStat) ) / 50) + 2);
+
+  const stab = attacker.typesEn && attacker.typesEn.includes(move.type) ? 1.5 : 1;
+
   const finalDamage = Math.floor(baseDamage * multiplier * stab * (0.85 + randomFactor * 0.15));
-  
+
   return { damage: finalDamage, multiplier };
 };

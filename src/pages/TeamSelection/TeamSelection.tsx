@@ -3,21 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { generateDailyChallenge } from '../../utils/game/challengeUtils';
 import useBattleStore from '../../store/battleStore';
 import { TYPE_COLORS_KO as typeColors } from '../../utils/pokemon/constants';
+import { Pokemon, LeaderData, Stats } from '../../types';
 import './TeamSelection.css';
 
 function TeamSelection() {
   const navigate = useNavigate();
   const setBattleTeams = useBattleStore((state) => state.setBattleTeams);
 
-  const [rentalPokemon, setRentalPokemon] = useState([]);
-  const [leaderData, setLeaderData] = useState(null);
-  const [selectedTeam, setSelectedTeam] = useState([]);
+  const [rentalPokemon, setRentalPokemon] = useState<Pokemon[]>([]);
+  const [leaderData, setLeaderData] = useState<LeaderData | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<Pokemon[]>([]);
 
   useEffect(() => {
     const initChallenge = async () => {
-      const { rentalPokemon, leader, leaderSprite, leaderPokemon } = await generateDailyChallenge();
+      const challenge = await generateDailyChallenge();
+      const { rentalPokemon, leader, leaderSprite, leaderPokemon } = challenge;
 
-      const calculateStats = (baseStats) => {
+      const calculateStats = (baseStats: Stats): Stats => {
         const level = 50;
         const iv = 31;
         const ev = 0;
@@ -31,7 +33,7 @@ function TeamSelection() {
         };
       };
 
-      const processPokemon = (list) => list.map(p => {
+      const processPokemon = (list: Pokemon[]): Pokemon[] => list.map(p => {
         const realStats = calculateStats(p.stats);
         return {
           ...p,
@@ -47,7 +49,7 @@ function TeamSelection() {
     initChallenge();
   }, []);
 
-  const toggleSelect = (pokemon) => {
+  const toggleSelect = (pokemon: Pokemon) => {
     if (selectedTeam.find(p => p.id === pokemon.id)) {
       setSelectedTeam(selectedTeam.filter(p => p.id !== pokemon.id));
     } else {
@@ -80,11 +82,11 @@ function TeamSelection() {
               className={`pokemon-card ${isSelected ? 'selected' : ''}`}
               onClick={() => toggleSelect(p)}
             >
-              <img src={p.image} alt={p.name} className="pokemon-image" />
+              <img src={p.image || ''} alt={p.name} className="pokemon-image" />
               <h3>{p.name}</h3>
               <div className="pokemon-types">
                 {p.types.map(type => (
-                  <span key={type} className="type-badge" style={{ backgroundColor: typeColors[type] }}>
+                  <span key={type} className="type-badge" style={{ backgroundColor: typeColors[type] || '#777' }}>
                     {type}
                   </span>
                 ))}

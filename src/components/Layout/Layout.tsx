@@ -1,6 +1,11 @@
+import React from 'react';
 import './Layout.css';
 
-const Layout = ({ children }) => {
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="layout-container">
       <header className="layout-header">Pokedaily</header>

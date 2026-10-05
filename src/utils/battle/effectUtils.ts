@@ -1,30 +1,6 @@
 /* eslint-disable no-unused-vars */
-// src/utils/effectUtils.ts
-
-interface StatChange {
-  stat: 'attack' | 'defense' | 'spAttack' | 'spDefense' | 'speed' | 'accuracy' | 'evasion';
-  change: number;
-}
-
-interface MoveEffect {
-  chance?: number;
-  stat_changes?: StatChange[];
-  condition?: 'poison' | 'burn' | 'sleep' | 'freeze' | 'paralysis';
-}
-
-interface Move {
-  effect?: MoveEffect;
-  category: string;
-}
-
-interface Pokemon {
-  id: string;
-  name: string;
-  types: string[];
-  statStages: Record<string, number>;
-  status: string | null;
-  statusTurns?: number;
-}
+// src/utils/battle/effectUtils.ts
+import { Pokemon, Move } from '../../types';
 
 type SetPokemonState = (updater: (prev: Pokemon[]) => Pokemon[]) => void;
 
