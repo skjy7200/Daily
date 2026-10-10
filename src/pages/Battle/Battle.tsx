@@ -396,41 +396,56 @@ function Battle() {
           {battleMode === 'attack' && (
             <div className="move-list-container">
               <div className="move-list">
-                {myPokemon.moves.map((move, index) => (
+                {myPokemon.moves.every(m => m.currentPP <= 0) ? (
                   <button
-                    key={index}
                     className="move-button"
-                    onMouseEnter={() => setHoveredMove(move)}
-                    onMouseLeave={() => setHoveredMove(null)}
-                    onClick={() => {
-                        const newTeam = [...battleTeam];
-                        const currentPokemon = { ...newTeam[myCurrentIdx] };
-                        const newMoves = [...currentPokemon.moves];
-                        newMoves[index].currentPP -= 1;
-                        currentPokemon.moves = newMoves;
-                        newTeam[myCurrentIdx] = currentPokemon;
-                        setBattleTeam(newTeam);
-                        handleMoveSelection(move);
-                    }}
-                    disabled={isProcessing || myPokemon.currentHp === 0 || move.currentPP <= 0}
-                    style={{ borderLeft: `10px solid ${typeColors[move.type] || '#ccc'}` }}
+                    onClick={() => handleMoveSelection({
+                      name: 'struggle',
+                      nameKo: '발버둥',
+                      power: 50,
+                      accuracy: 100,
+                      pp: 1,
+                      currentPP: 1,
+                      type: 'normal',
+                      damageClass: 'physical',
+                      category: 'damage',
+                      effect: null,
+                      isStruggle: true
+                    })}
+                    disabled={isProcessing || myPokemon.currentHp === 0}
+                    style={{ borderLeft: '10px solid #777', gridColumn: 'span 2' }}
                   >
-                    <span>{move.nameKo} ({move.currentPP}/{move.pp})</span>
-                    <span 
-                      className="move-type-badge" 
-                      style={{ 
-                        backgroundColor: typeColors[move.type] || '#777',
-                        fontSize: '0.7rem',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        color: 'white',
-                        textShadow: '1px 1px 1px rgba(0,0,0,0.3)'
-                      }}
-                    >
-                      {typeMap[move.type] || move.type}
-                    </span>
+                    <span>발버둥 (PP 0/0)</span>
+                    <span className="move-type-badge" style={{ backgroundColor: '#777', fontSize: '0.7rem', padding: '2px 6px', borderRadius: '4px', color: 'white' }}>노말</span>
                   </button>
-                ))}
+                ) : (
+                  myPokemon.moves.map((move, index) => (
+                    <button
+                      key={index}
+                      className="move-button"
+                      onMouseEnter={() => setHoveredMove(move)}
+                      onMouseLeave={() => setHoveredMove(null)}
+                      onClick={() => handleMoveSelection(move)}
+                      disabled={isProcessing || myPokemon.currentHp === 0 || move.currentPP <= 0}
+                      style={{ borderLeft: `10px solid ${typeColors[move.type] || '#ccc'}` }}
+                    >
+                      <span>{move.nameKo} ({move.currentPP}/{move.pp})</span>
+                      <span 
+                        className="move-type-badge" 
+                        style={{ 
+                          backgroundColor: typeColors[move.type] || '#777',
+                          fontSize: '0.7rem',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          color: 'white',
+                          textShadow: '1px 1px 1px rgba(0,0,0,0.3)'
+                        }}
+                      >
+                        {typeMap[move.type] || move.type}
+                      </span>
+                    </button>
+                  ))
+                )}
               </div>
               <button className="back-button" onClick={() => setBattleMode('main')}>뒤로가기</button>
             </div>
