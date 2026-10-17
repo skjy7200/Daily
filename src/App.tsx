@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom';
-import './App.css';
 import Main from './pages/Main/Main';
 import TeamSelection from './pages/TeamSelection/TeamSelection';
 import Battle from './pages/Battle/Battle';
